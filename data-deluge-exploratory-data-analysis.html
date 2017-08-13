@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="http://bwanglzu.github.io/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/style.css">
+
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/xcode.css">
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/googlefont.css">
+  
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/nprogress.css">
+  <script src="http://bwanglzu.github.io/theme/js/nprogress.js" type="text/javascript"></script>
+  <script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.js" type="text/javascript"></script>
+  <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+  
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="wangbo@Delft">
+  <meta name="description" content="Posts and writings by wangbo@Delft">
+  <link rel="Shortcut Icon" href = "http://bwanglzu.github.io/theme/images/Favicon.png">
+
+
+<meta name="keywords" content="Data Analysis, R, Machine Learning, Data Visualization">
+
+  <title>
+Data Deluge -- Exploratory Data Analysis  </title>
+
+</head>
+
+<body>
+  <script type="text/javascript">
+    NProgress.configure({ minimum: 0.1 });
+    NProgress.configure({ ease: 'ease', speed: 1500 });
+    NProgress.configure({ trickleRate: 0.01, trickleSpeed: 1000 });
+    NProgress.configure({ showSpinner: false });
+    NProgress.start();
+    $(document).ready(function(){
+        NProgress.done();
+    });
+</script>
+  <aside>
+    <div id="user_meta">
+      <a href="http://bwanglzu.github.io/index.html">
+        <img src="http://bwanglzu.github.io/theme/images/logo.png" alt="logo">
+      </a>
+      <h2><a href="http://bwanglzu.github.io/index.html">wangbo@Delft</a></h2>
+      <p>every little helps a mickle</p>
+      <ul>
+        <li><a href="http://bwanglzu.github.io/pages/about.html">About</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/academic.html">Academic</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/contact.html">Contact</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/curriculum-viate.html">Curriculum Viate</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+<p>Posted on 2015-08-03</p>
+    </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="http://bwanglzu.github.io/data-deluge-exploratory-data-analysis.html">Data Deluge -- Exploratory Data Analysis</a></h3>
+  </div>
+  <div class="article_text">
+    <h4>Principles of Analytic Graphics</h4>
+<ol>
+<li>
+<p>Show comparisons, evidence for a hypothesis is always relative to another competing hypothesis; always ask compare to what.</p>
+</li>
+<li>
+<p>Show causality, mechanism, explanation and systematic structure.</p>
+</li>
+<li>
+<p>Show multivariate data, the world is multivariable, we can gat a more clearly picture of facts as we get more variables.</p>
+</li>
+<li>
+<p>Integration all the evidence, use plot, tables, image, all statistics functions to show result.</p>
+</li>
+<li>
+<p>Describe document evidence with appropriate lables, sources and scales, keep your data credible.</p>
+</li>
+<li>
+<p>Content is king.</p>
+</li>
+</ol>
+<h4>Plotting systems</h4>
+<p><strong>Base Plotting System</strong>, example:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+<span class="n">data</span><span class="p">(</span><span class="n">cars</span><span class="p">)</span>
+<span class="k">with</span><span class="p">(</span><span class="n">cars</span><span class="p">,</span> <span class="n">plot</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span> <span class="n">dist</span><span class="p">))</span>
+</pre></div>
+
+
+<p><strong>Lattice System</strong>, plots are created with a single function call.</p>
+<p><strong>ggplot2 System</strong>, example:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+<span class="n">data</span><span class="p">(</span><span class="n">mpg</span><span class="p">)</span>
+<span class="n">qplot</span><span class="p">(</span><span class="n">displ</span><span class="p">,</span> <span class="n">hwy</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mpg</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>Base plotting system</h4>
+<p>Core plotting and graphics engine in R is encapsulated in <em>graphics</em> and <em>grDevices</em> packages.</p>
+<ol>
+<li>graphics contains plotting function such as <strong>plot, hist, boxplot</strong> etc.</li>
+<li>grDevices contains various graphics devices such as <strong>X11, PDF, PostScript, PNG</strong> etc.</li>
+</ol>
+<p>To steps to draw a basic plot:</p>
+<ol>
+<li>Initializing a new plot.</li>
+<li>Add annotate to the plot.</li>
+</ol>
+<p><em>Histogram</em>:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+<span class="n">hist</span><span class="p">(</span><span class="n">airquality</span><span class="err">$</span><span class="n">Ozone</span><span class="p">)</span>
+</pre></div>
+
+
+<p><em>Scatterplot</em>:</p>
+<div class="highlight"><pre><span></span><span class="k">with</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="n">plot</span><span class="p">(</span><span class="n">Wind</span><span class="p">,</span> <span class="n">Ozone</span><span class="p">))</span>
+</pre></div>
+
+
+<p><em>Boxplot</em>:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+<span class="n">boxplot</span><span class="p">(</span><span class="n">Ozone</span> <span class="o">~</span> <span class="n">Month</span><span class="p">,</span> <span class="n">airquality</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Some key graphics parameters:</p>
+<ol>
+<li>pch, plotting symbol.</li>
+<li>lty, line type.</li>
+<li>lwd, line width.</li>
+<li>col, plotting color.</li>
+<li>xlab, x-axis label.</li>
+<li>ylab, y-axis label.</li>
+</ol>
+<p><em>Par</em> function is used to specify golbal graphics parameters that affect all plots in R session.</p>
+<ol>
+<li>las, orientation of axis labels on plot.</li>
+<li>bg, background color.</li>
+<li>mar, the margin size.</li>
+<li>oma, the outer margin size.</li>
+<li>mfrow, number of plots per row, row-wise.</li>
+<li>mfcol, number of plots per row, column-wise.</li>
+</ol>
+<p>Some key graphics functions:</p>
+<ol>
+<li>plot, make a scatterplot or other type of plots.</li>
+<li>lines, add lines to a plot.</li>
+<li>points, add points to a plot.</li>
+<li>text, add text labels to a plot.</li>
+<li>title, add annotations to plot.</li>
+<li>mtext, add arbitrary text to margins.</li>
+<li>axis, add adis ticks/labels.</li>
+<li>legend, add legend.</li>
+</ol>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+<span class="k">with</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="n">plot</span><span class="p">(</span><span class="n">Wind</span><span class="p">,</span> <span class="n">Ozone</span><span class="p">))</span>
+<span class="n">title</span><span class="p">(</span><span class="n">main</span> <span class="o">=</span> <span class="s2">&quot;NYC Ozone and Wind&quot;</span><span class="p">)</span>
+<span class="k">with</span><span class="p">(</span><span class="n">subset</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="n">Month</span> <span class="o">==</span> <span class="mi">5</span><span class="p">),</span> <span class="n">points</span><span class="p">(</span><span class="n">Wind</span><span class="p">,</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span><span class="p">))</span>
+<span class="k">with</span><span class="p">(</span><span class="n">subset</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="n">Month</span> <span class="o">!=</span> <span class="mi">5</span><span class="p">),</span> <span class="n">points</span><span class="p">(</span><span class="n">Wind</span><span class="p">,</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span><span class="p">))</span>
+<span class="n">legend</span><span class="p">(</span><span class="s2">&quot;topright&quot;</span><span class="p">,</span> <span class="n">pch</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">),</span> <span class="n">legend</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;may&quot;</span><span class="p">,</span> <span class="s2">&quot;other months&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Draw two plots:</p>
+<div class="highlight"><pre><span></span><span class="n">par</span><span class="p">(</span><span class="n">mfrow</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="k">with</span><span class="p">(</span><span class="n">airquality</span><span class="p">,{</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">Wind</span><span class="p">,</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">main</span> <span class="o">=</span> <span class="s2">&quot;NYC Ozone and Wind&quot;</span><span class="p">)</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">Solar</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">Ozone</span><span class="p">,</span> <span class="n">main</span> <span class="o">=</span> <span class="s2">&quot;Ozone and Solar Radiation&quot;</span><span class="p">)</span>
+<span class="p">})</span>
+</pre></div>
+
+
+<p>Draw data with groups. Firstly I generate a factor grouped data consist 50 male and 50 female:</p>
+<div class="highlight"><pre><span></span><span class="n">g</span> <span class="o">&lt;-</span> <span class="n">gl</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;male&quot;</span><span class="p">,</span> <span class="s2">&quot;female&quot;</span><span class="p">))</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Type = "n" means draw the plot without data first. Then draw the data with groups:</p>
+<div class="highlight"><pre><span></span><span class="n">points</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">g</span><span class="o">==</span><span class="s2">&quot;male&quot;</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">g</span><span class="o">==</span><span class="s2">&quot;male&quot;</span><span class="p">],</span> <span class="n">col</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+<span class="n">points</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">g</span><span class="o">==</span><span class="s2">&quot;female&quot;</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">g</span><span class="o">==</span><span class="s2">&quot;female&quot;</span><span class="p">],</span> <span class="n">col</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>Graphics Devices</h4>
+<p>Graph device is sth where you can make a plot appear. The most common place for plot is screen, on mac called <em>quartz</em>, windows called <em>windows</em>, linux/unix called <em>x11</em>.</p>
+<p>Create a <em>pdf</em> file:</p>
+<div class="highlight"><pre><span></span><span class="n">pdf</span><span class="p">(</span><span class="nb">file</span> <span class="o">=</span> <span class="s2">&quot;myplot.pdf&quot;</span><span class="p">)</span><span class="o">//</span> <span class="nb">open</span> <span class="n">pdf</span> <span class="nb">file</span> <span class="n">device</span>
+<span class="k">with</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">title</span><span class="p">(</span><span class="n">main</span> <span class="o">=</span> <span class="s2">&quot;my Data&quot;</span><span class="p">)</span>
+<span class="n">dev</span><span class="o">.</span><span class="n">off</span> <span class="o">//</span> <span class="n">close</span> <span class="n">the</span> <span class="n">pdf</span> <span class="nb">file</span> <span class="n">device</span>
+</pre></div>
+
+
+<p><em>vector</em> and <em>bitmap</em> are 2 baskc types of file devices.</p>
+<p>Vector formats:</p>
+<ol>
+<li>pdf</li>
+<li>svg</li>
+<li>win.metafile</li>
+<li>postscript</li>
+</ol>
+<p>Bitmap formats:</p>
+<ol>
+<li>png</li>
+<li>jpeg</li>
+<li>tiff</li>
+<li>bmp</li>
+</ol>
+<p>Plotting can only occur on one graphic device at one time. Find the current graphic device:</p>
+<div class="highlight"><pre><span></span><span class="n">dev</span><span class="o">.</span><span class="n">cur</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Use dev.copy to copy a plot from one device to another.</p>
+<div class="highlight"><pre><span></span><span class="n">dev</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">png</span><span class="p">,</span> <span class="nb">file</span> <span class="o">=</span> <span class="s2">&quot;1.png&quot;</span><span class="p">)</span>
+<span class="n">dev</span><span class="o">.</span><span class="n">off</span><span class="p">()</span>
+<span class="o">//</span><span class="ow">or</span>
+<span class="n">dev</span><span class="o">.</span><span class="n">copy2pdf</span>
+</pre></div>
+
+
+<h4>Lattice Plotting System</h4>
+<p>Lattice package built on top of grid, u have to create one plot at one in a single function call, specify all arguments in the function call.</p>
+<p>Margins, spacing are automatically handled.</p>
+<p>It's ideal for creating conditioning plots in same datasets with different conditions.</p>
+<ol>
+<li><em>xyplot</em>, main function for creating scatterplots.</li>
+<li><em>bwplot</em>, boxplots.</li>
+<li><em>histogram</em>.</li>
+<li><em>stripplot</em>, similar as a boxplot but with actual points.</li>
+<li><em>dotplot</em>, plot dots on "violin strings".</li>
+<li><em>splom</em>, scatterplot matrix.</li>
+<li><em>levelplot</em>, <em>countourplot</em>, for plotting "image" data.</li>
+</ol>
+<p>xyplot:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+<span class="n">xyplot</span><span class="p">(</span><span class="n">Ozone</span> <span class="o">~</span> <span class="n">Wind</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">airquality</span><span class="p">)</span>
+</pre></div>
+
+
+<p>with conditions:</p>
+<div class="highlight"><pre><span></span><span class="n">airquality2</span> <span class="o">&lt;-</span> <span class="n">transform</span><span class="p">(</span><span class="n">airquality</span><span class="p">,</span> <span class="n">Month</span> <span class="o">=</span> <span class="n">factor</span><span class="p">(</span><span class="n">Month</span><span class="p">))</span>
+<span class="n">xyplot</span><span class="p">(</span><span class="n">Ozone</span> <span class="o">~</span> <span class="n">Wind</span> <span class="o">|</span> <span class="n">Month</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">airquality2</span><span class="p">,</span> <span class="n">layout</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Compare lattice(L) with base plotting system(BPS):</p>
+<p>BPS plot data directly to graphics device; L return an object of class <em>trellis</em>, then use <em>print</em> functions plotting data to graphics device. Object of trellis can be stored, and on command line, they are auto-printed.</p>
+<p><em>Panel function</em> controls what happens inside each panel plot.</p>
+<p>Generate some test data:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">&lt;-</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">//</span><span class="err">生成标准正态分布数据</span>
+<span class="n">f</span> <span class="o">&lt;-</span> <span class="n">rep</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="n">each</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span><span class="o">//</span><span class="err">生成</span><span class="mi">100</span><span class="err">个数据，分别为</span><span class="mi">0</span><span class="err">，</span><span class="mi">1</span>
+<span class="n">y</span> <span class="o">&lt;-</span> <span class="n">x</span> <span class="o">+</span> <span class="n">f</span> <span class="o">-</span> <span class="n">f</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">sd</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">//</span><span class="err">生成线性数据，因为</span><span class="n">f</span><span class="err">包含</span><span class="mi">0</span><span class="err">与</span><span class="mi">1</span><span class="err">，因此</span><span class="n">f</span> <span class="o">=</span> <span class="mi">0</span><span class="err">时实际上</span><span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">sd</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span><span class="err">依旧为标准正态分布，非线性</span>
+<span class="n">f</span> <span class="o">&lt;-</span> <span class="n">factor</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;Group1&quot;</span><span class="p">,</span> <span class="s2">&quot;Group2&quot;</span><span class="p">))</span><span class="o">//</span><span class="err">两个组分别命名</span>
+<span class="n">xyplot</span><span class="p">(</span><span class="n">y</span> <span class="o">~</span> <span class="n">x</span> <span class="o">|</span> <span class="n">f</span><span class="p">,</span> <span class="n">layout</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Add panel functions:</p>
+<div class="highlight"><pre><span></span><span class="n">xyplot</span><span class="p">(</span><span class="n">y</span> <span class="o">~</span> <span class="n">x</span> <span class="o">|</span> <span class="n">f</span><span class="p">,</span> <span class="n">panel</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">...</span><span class="p">){</span>
+    <span class="n">panel</span><span class="o">.</span><span class="n">xyplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span><span class="o">//</span><span class="n">call</span> <span class="n">default</span> <span class="n">panel</span> <span class="n">function</span>
+    <span class="n">panel</span><span class="o">.</span><span class="n">abline</span><span class="p">(</span><span class="n">h</span> <span class="o">=</span> <span class="n">median</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">lty</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="n">add</span> <span class="n">a</span> <span class="n">abline</span><span class="err">在中位数处添加</span><span class="n">abline</span>
+    <span class="n">panel</span><span class="o">.</span><span class="n">lmline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="err">添加回归线</span><span class="n">add</span> <span class="n">a</span> <span class="n">regression</span> <span class="n">line</span>
+<span class="p">})</span>
+</pre></div>
+
+
+<h4>ggplot2</h4>
+<p>Is created for <em>shorten the distance from mind to paper</em>. Build mapping from data to points, lines, bars, colour, shape, size.</p>
+<p>Data have to be organized in data frame.</p>
+<p>Factors are very important because they indicate subsets of data. Example:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+<span class="n">head</span><span class="p">(</span><span class="n">mpg</span><span class="p">)</span>
+<span class="n">qplot</span><span class="p">(</span><span class="n">displ</span><span class="p">,</span> <span class="n">hwy</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mpg</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Use conditions:</p>
+<div class="highlight"><pre><span></span><span class="n">levels</span><span class="p">(</span><span class="n">mpg</span><span class="err">$</span><span class="n">drv</span><span class="p">)</span><span class="o">//</span><span class="n">it</span><span class="s1">&#39;s a factor variable</span>
+<span class="n">qplot</span><span class="p">(</span><span class="n">displ</span><span class="p">,</span> <span class="n">hwy</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mpg</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">drv</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Add a <em>smoother</em> argument to see the overall trend of data:</p>
+<div class="highlight"><pre><span></span><span class="n">qplot</span><span class="p">(</span><span class="n">displ</span><span class="p">,</span> <span class="n">hwy</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mpg</span><span class="p">,</span> <span class="n">geom</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="s2">&quot;smooth&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Point argument draws points on screen and smooth argument generate a blue line with gray areas indicates data trend and it's 95% confidence interval.</p>
+<p>Generate histogram with only 1 variable:</p>
+<div class="highlight"><pre><span></span><span class="n">qplot</span><span class="p">(</span><span class="n">hwy</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mpg</span><span class="p">,</span> <span class="n">fill</span> <span class="o">=</span> <span class="n">drv</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Use facets to create separate plots. Format of facets is <em>variable1~variable2</em>. variable2 determine the columns of panel, v1 determine the rows of panel.</p>
+<div class="highlight"><pre><span></span><span class="n">qplot</span><span class="p">(</span><span class="n">displ</span><span class="p">,</span> <span class="n">hwy</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mpg</span><span class="p">,</span> <span class="n">facets</span><span class="o">=.~</span><span class="n">drv</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Change geom argument to <em>density</em> to draw plot with density smooth:</p>
+<div class="highlight"><pre><span></span><span class="n">qplot</span><span class="p">(</span><span class="n">hwy</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mpg</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">drv</span><span class="p">)</span>
+</pre></div>
+
+
+<p>To seprate variables, except color, fill, we can use <em>shape</em> argument:</p>
+<div class="highlight"><pre><span></span><span class="n">qplot</span><span class="p">(</span><span class="n">displ</span><span class="p">,</span> <span class="n">hwy</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">mpg</span><span class="p">,</span> <span class="n">shape</span> <span class="o">=</span> <span class="n">drv</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Use argument <em>method = "lm"</em> to draw smooth line with standard linear regression model instead of loess.</p>
+<p>Instead building a plot in one function like lattice, ggplot2 allow user to build plots layer by layer. and the key points are:</p>
+<ol>
+<li>prepare a data frame.</li>
+<li>aesthetic mapping determine data color, size etc.</li>
+<li>geometric objects are points, lines, shapes, facets.</li>
+<li>statistical transformations determine binning, quantiles and smoothing.</li>
+<li>scales show coding on aesthetic map uses.</li>
+<li>plots then depicted on a coordinate system.</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="n">class</span><span class="p">(</span><span class="n">mpg</span><span class="p">)</span>
+<span class="n">g</span> <span class="o">&lt;-</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">mpg</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">displ</span><span class="p">,</span> <span class="n">hwy</span><span class="p">))</span>
+<span class="n">p</span> <span class="o">&lt;-</span> <span class="n">g</span> <span class="o">+</span> <span class="n">geom_point</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">&lt;-</span> <span class="n">p</span> <span class="o">+</span> <span class="n">geom_smooth</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
+<span class="n">pslm</span> <span class="o">&lt;-</span> <span class="n">p</span> <span class="o">+</span> <span class="n">geom_smooth</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;lm&quot;</span><span class="p">)</span>
+<span class="n">pslmf</span> <span class="o">&lt;-</span> <span class="n">pslm</span> <span class="o">+</span> <span class="n">facet_grid</span><span class="p">(</span><span class="o">.~</span><span class="n">drv</span><span class="p">)</span>
+</pre></div>
+
+
+<p><strong>Make sure your dataframe is labeled approprlately that you didn't have to modify the plot laterly.</strong></p>
+<p>Functions to modify plots:</p>
+<ol>
+<li>labels, xlab(), ylab(), labs(), ggtitle().</li>
+<li>geom options.</li>
+<li>theme() function make sense globally, include 2 standard appearance, theme_gray() and theme_bw(), background, legend and so on.</li>
+</ol>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="n">g</span> <span class="o">&lt;-</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span> <span class="n">hp</span><span class="p">))</span>
+<span class="n">gl</span> <span class="o">&lt;-</span> <span class="n">g</span> <span class="o">+</span> <span class="n">geom_point</span><span class="p">(</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">gl2</span> <span class="o">&lt;-</span> <span class="n">g</span> <span class="o">+</span> <span class="n">geom_point</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">color</span> <span class="o">=</span> <span class="n">gear</span><span class="p">),</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">gllabs</span> <span class="o">&lt;-</span> <span class="n">gl</span> <span class="o">+</span> <span class="n">labs</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;MYTITLE&quot;</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="s2">&quot;dostence&quot;</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="s2">&quot;hp size&quot;</span><span class="p">)</span>
+<span class="n">gls</span> <span class="o">&lt;-</span> <span class="n">gl</span> <span class="o">+</span> <span class="n">geom_smooth</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">linetype</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;lm&quot;</span><span class="p">,</span> <span class="n">se</span> <span class="o">=</span> <span class="n">FALSE</span><span class="p">)</span><span class="o">//</span><span class="n">se</span> <span class="o">=</span> <span class="n">F</span> <span class="n">means</span> <span class="n">to</span> <span class="n">hide</span> <span class="n">confidence</span> <span class="n">interval</span>
+<span class="n">gls</span> <span class="o">+</span> <span class="n">theme_bw</span><span class="p">(</span><span class="n">base_family</span><span class="o">=</span><span class="s2">&quot;Times&quot;</span><span class="p">)</span><span class="o">//</span><span class="n">white</span> <span class="n">background</span> <span class="ow">and</span> <span class="n">times</span> <span class="n">font</span>
+</pre></div>
+
+
+<p>Add axis limits to ignore extreme value:</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">&lt;-</span> <span class="n">data</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+<span class="n">g</span> <span class="o">&lt;-</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">gl</span> <span class="o">&lt;-</span> <span class="n">g</span> <span class="o">+</span> <span class="n">geom_line</span><span class="p">()</span>
+<span class="n">gll</span> <span class="o">&lt;-</span> <span class="n">gl</span> <span class="o">+</span> <span class="n">coord_cartesian</span><span class="p">(</span><span class="n">ylim</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span><span class="o">//</span><span class="n">limit</span> <span class="n">value</span> <span class="ow">in</span> <span class="o">-</span><span class="mi">3</span> <span class="n">to</span> <span class="mi">3</span>
+</pre></div>
+
+
+<p>Machine learning Mindmap</p>
+<p><img alt="image 1" src="img/mlmindmap.png" /></p>
+<h4>Hierarchical Clustering(层次聚类)</h4>
+<p><em>Clustering</em> organize things that are close into groups.</p>
+<p>Process:</p>
+<ol>
+<li>define close</li>
+<li>group things</li>
+<li>visualize grouping</li>
+<li>interpret grouping</li>
+</ol>
+<p><em>Cluster analysis</em> is an important and widely used technique. <em>Hierarchical clusting</em> organizing data into a kind of hierachy.</p>
+<p>A common approach is <em>agglomerative approach(bottom-up apporach)</em>. Find closest two points, put them together, remove the original two points and replace them with the new point. Then repeat this process.</p>
+<p><strong>Most important is how to define close.</strong></p>
+<p>Distance Metrics: </p>
+<ol>
+<li><em>Euclidean distance(欧几里德中心距离)</em>, calculate correlation similarity.</li>
+<li><em>Manhattan distance(曼哈顿距离)</em>.</li>
+<li><em>Pearson Correlation Score(皮尔逊相关性系数)</em>.</li>
+<li><em>Jaccard distance(杰卡德系数)</em>.</li>
+</ol>
+<p>finally will generate a <em>dendrogram(树状图)</em>.</p>
+<p>Example data set:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">&lt;-</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">rep</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="n">each</span> <span class="o">=</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sd</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">&lt;-</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">rep</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">each</span> <span class="o">=</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sd</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">qplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<p><em>dist</em> function takes a dataframe or matrix to calculate distance. Default is <em>eucilidean distance</em>.</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">&lt;-</span> <span class="n">data</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">xyDist</span> <span class="o">&lt;-</span> <span class="n">dist</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">xyCluster</span> <span class="o">&lt;-</span> <span class="n">hclust</span><span class="p">(</span><span class="n">xyDist</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">xyCluster</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This will generate a cluster dendrogram.</p>
+<p>Then, need to <em>cut</em> the tree at a proper position, and to get branches.</p>
+<p>Merge points together, 2 approaches:</p>
+<ol>
+<li>Average Linkage</li>
+<li>Complete Linkage</li>
+</ol>
+<p>Cluster/Visulazie matrix data with <em>hearmap</em>, really useful to visulize high dimension data matrix.</p>
+<div class="highlight"><pre><span></span><span class="n">heatmap</span><span class="p">(</span><span class="n">datamatrix</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>K-means Clustering</h4>
+<p>Use <em>k-means</em> to summarize high dimensional data, show data patterns, obversations similarity.</p>
+<p><strong>K-means clustering is a way to partltloning a group of observations into a fixed number of clusters.</strong></p>
+<ol>
+<li>you should have a sense of <em>how many clusters there are</em> first.</li>
+<li>Pick some random points as <em>centroids</em> of each cluster.</li>
+<li>Assign points to closest centroid.</li>
+<li>Reclaculate centroids.</li>
+</ol>
+<p>Example data:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">&lt;-</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">rep</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="n">each</span> <span class="o">=</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sd</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">&lt;-</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">mean</span> <span class="o">=</span> <span class="n">rep</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">each</span> <span class="o">=</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sd</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">qplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Draw k-means:</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">&lt;-</span> <span class="n">data</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">xyKmeans</span> <span class="o">&lt;-</span> <span class="n">kmeans</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">centers</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">g</span> <span class="o">&lt;-</span> <span class="n">ggplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">aes</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">gp</span> <span class="o">&lt;-</span> <span class="n">g</span> <span class="o">+</span> <span class="n">geom_point</span><span class="p">(</span><span class="n">xyKmeans</span><span class="err">$</span><span class="n">centers</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now we need add centers on gp, type class(xyKmeans$centers), it's a matrix. Transform it into data frame:</p>
+<div class="highlight"><pre><span></span><span class="n">centers</span> <span class="o">&lt;-</span> <span class="n">data</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">xyKmeans</span><span class="err">$</span><span class="n">centers</span><span class="p">)</span>
+<span class="n">centers</span>
+<span class="n">gp</span> <span class="o">+</span> <span class="n">geom_point</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="n">centers</span><span class="err">$</span><span class="n">x</span><span class="p">,</span> <span class="n">centers</span><span class="err">$</span><span class="n">y</span><span class="p">),</span> <span class="n">shape</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Result:</p>
+<p><img alt="image 1" src="img/kmeans.png" /></p>
+<h4>Dimension Reduction</h4>
+<p>Is used to solve 2 problems:</p>
+<ol>
+<li>Create a set of variables smaller than the original dataset and columns are uncorrelated with each other.</li>
+<li>Find the best matrix create with fewer varlables but still can explain the origin data(find a lower rank matrix低秩矩阵)(<em>data compression</em> problem.</li>
+</ol>
+<p>Use <em>Principle Component Analysis</em> to solve the first problem and use <em>singular value decomposition</em> to handle with the second one.</p>
+<p>SVD, decomposition matrix into 3 matrix, <em>U</em>(left singular vector), <em>V</em>(right singular vector), <em>D</em>(diagonal matrix).</p>
+<p>PCA, principle components analysis, equal to right singular vector if we subtract mean value then devide by standard deviation.</p>
+<p>Before SVD/PCA, we have to handle with missing values. If there has missing values, we have to install <em>impute</em> library and use <em>impute.knn</em> function to fill the missing values.</p>
+<h4>Working with colors</h4>
+<p>grDevices package have 2 functions:</p>
+<ol>
+<li>colorRamp</li>
+<li>colorRampPalette</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="n">pal</span> <span class="o">&lt;-</span> <span class="n">colorRamp</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">))</span><span class="o">//</span><span class="k">return</span> <span class="n">a</span> <span class="n">function</span>
+<span class="n">pal</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">//</span><span class="n">parameter</span> <span class="n">could</span> <span class="n">be</span> <span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">returns</span> <span class="n">rgb</span> <span class="n">matrix</span>
+</pre></div>
+
+
+<p>colorRampPalette:</p>
+<div class="highlight"><pre><span></span><span class="n">pal</span> <span class="o">&lt;-</span> <span class="n">colorRampPalette</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="n">read</span><span class="p">,</span> <span class="n">blue</span><span class="p">))</span><span class="o">//</span><span class="n">returns</span> <span class="n">a</span> <span class="n">function</span>
+<span class="n">pal</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="n">parameter</span> <span class="n">could</span> <span class="n">be</span> <span class="n">a</span> <span class="n">integer</span><span class="err">，</span> <span class="k">return</span> <span class="n">pound</span> <span class="n">key</span> <span class="k">with</span> <span class="n">hexadecimal</span> <span class="c1">#FF0000</span>
+</pre></div>
+
+
+<p>RColorBrewer Package do provide 3 types of palettes:</p>
+<ol>
+<li>sequantial, go from light to dark, can order data from low to high.</li>
+<li>diverging, light in middle and dark in two sides, used for represents negative - positive data(example -10 to 10).</li>
+<li>qualitative, used to organize categorical data.</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">RColorBrewer</span><span class="p">)</span>
+<span class="n">cols</span> <span class="o">&lt;-</span> <span class="n">brewer</span><span class="o">.</span><span class="n">pal</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;OrRd&quot;</span><span class="p">)</span>
+<span class="n">pal</span> <span class="o">&lt;-</span> <span class="n">colorRampPalette</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
+<span class="n">image</span><span class="p">(</span><span class="n">volcano</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">pal</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+</pre></div>
+
+
+<p>brewer.pal is the only function in this function, takes 2 arguments, first is base color number, second is the palettes name. Use</p>
+<div class="highlight"><pre><span></span><span class="n">display</span><span class="o">.</span><span class="n">brewer</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</pre></div>
+
+
+<p>to get all names.</p>
+<p>smoothScatter function used color in brewer:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">&lt;-</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">&lt;-</span> <span class="n">rnorm</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">smoothScatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Other function like rgb()</p>
+<div class="highlight"><pre><span></span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">rgb</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">pch</span> <span class="o">=</span> <span class="mi">19</span><span class="p">)</span>
+</pre></div>
+
+
+<p>-- end --</p>
+  </div>
+  <div class="article_meta">
+    <p>Category: <a href="http://bwanglzu.github.io/category/data-science.html">Data Science</a></p>
+    <p>Tags:
+      <a href="http://bwanglzu.github.io/tag/data-analysis.html">Data Analysis</a>,      <a href="http://bwanglzu.github.io/tag/r.html">R</a>,      <a href="http://bwanglzu.github.io/tag/machine-learning.html">Machine Learning</a>,      <a href="http://bwanglzu.github.io/tag/data-visualization.html">Data Visualization</a>    </p>
+    <p>Comments: <a href="#" onclick="javascript:toggleComments();return false;">toggle</a></p>
+  </div>
+
+    <div id="article_comments" style="display:block">
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+           var disqus_identifier = "data-deluge-exploratory-data-analysis.html";
+           (function() {
+           var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+           dsq.src = 'http://wangbodelftblog.disqus.com/embed.js';
+           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+          })();
+        </script>
+    </div>
+
+</article>
+
+    <footer>
+<p><a href="http://bwanglzu.github.io/" class="button_accent">&larr; Back to Index</a></p>
+<script language="javascript">
+    function toggleComments() {
+        var commentDiv = document.getElementById("article_comments");
+        (commentDiv.style.display == "none") ? commentDiv.style.display = "block" : commentDiv.style.display = "none";
+        return false;
+    }
+</script>
+    </footer>
+
+    <div id="ending_message">
+      <p>&copy; wangbo@Delft. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/giulivo/pelican-svbhack" target="_blank">github</a><span id="busuanzi_container_site_pv"> Site Viewed <span id="busuanzi_value_site_pv"></span> Times</span>. .</p>
+    </div>
+  </main>
+</body>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":["tsina","weixin","sqq","fbook","twi","linkedin","copy"],"bdPic":"","bdStyle":"1","bdSize":"24"},"slide":{"type":"slide","bdImg":"5","bdPos":"right","bdTop":"100"},"image":{"viewList":["tsina","weixin","fbook","linkedin","twi","sqq"],"viewText":"Share：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["tsina","weixin","fbook","linkedin","twi","sqq"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</html>

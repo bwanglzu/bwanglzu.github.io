@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="http://bwanglzu.github.io/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/style.css">
+
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/xcode.css">
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/googlefont.css">
+  
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/nprogress.css">
+  <script src="http://bwanglzu.github.io/theme/js/nprogress.js" type="text/javascript"></script>
+  <script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.js" type="text/javascript"></script>
+  <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+  
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="wangbo@Delft">
+  <meta name="description" content="Posts and writings by wangbo@Delft">
+  <link rel="Shortcut Icon" href = "http://bwanglzu.github.io/theme/images/Favicon.png">
+
+
+<meta name="keywords" content="Data Analysis, R">
+
+  <title>
+Data Deluge -- Getting And Cleaning Data  </title>
+
+</head>
+
+<body>
+  <script type="text/javascript">
+    NProgress.configure({ minimum: 0.1 });
+    NProgress.configure({ ease: 'ease', speed: 1500 });
+    NProgress.configure({ trickleRate: 0.01, trickleSpeed: 1000 });
+    NProgress.configure({ showSpinner: false });
+    NProgress.start();
+    $(document).ready(function(){
+        NProgress.done();
+    });
+</script>
+  <aside>
+    <div id="user_meta">
+      <a href="http://bwanglzu.github.io/index.html">
+        <img src="http://bwanglzu.github.io/theme/images/logo.png" alt="logo">
+      </a>
+      <h2><a href="http://bwanglzu.github.io/index.html">wangbo@Delft</a></h2>
+      <p>every little helps a mickle</p>
+      <ul>
+        <li><a href="http://bwanglzu.github.io/pages/about.html">About</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/academic.html">Academic</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/contact.html">Contact</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/curriculum-viate.html">Curriculum Viate</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+<p>Posted on 2015-07-05</p>
+    </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="http://bwanglzu.github.io/data-deluge-getting-and-cleaning-data.html">Data Deluge -- Getting And Cleaning Data</a></h3>
+  </div>
+  <div class="article_text">
+    <p><strong>Goal of getting and cleaning data</strong>: Raw data -&gt; Processing Script -&gt; Tidy data -&gt; Data analysis -&gt; Data communication.</p>
+<p><strong>Data are values of qualitative of quantitative variables, belonging to a set of items.</strong></p>
+<p>Raw data:</p>
+<ol>
+<li>The original source of data.</li>
+<li>Hard to use for data analysis.</li>
+<li>Only need to be processed once.</li>
+</ol>
+<p>Processed data include merging, subsetting, transforming, etc, all processed data should be recorded.</p>
+<p>Tidy data:</p>
+<ol>
+<li>Each variable in one column.</li>
+<li>Each ovservation in different column.</li>
+<li>Each kind of variable in one table.</li>
+</ol>
+<p>Variable names should be readable.</p>
+<h4>Data Source</h4>
+<hr />
+<p><strong>Downloading files</strong></p>
+<p>In RStudio, use getwd() or setwd() to get/set(relative or absoulte directory) your working directory.</p>
+<p>Check if the directory exists with</p>
+<div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="err">!</span><span class="nb">file</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)){</span>
+    <span class="nb">dir</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Download file:</p>
+<div class="highlight"><pre><span></span><span class="n">fileURL</span> <span class="o">&lt;-</span> <span class="s2">&quot;https://data-file-url-example.csv&quot;</span>
+<span class="n">download</span><span class="o">.</span><span class="n">file</span><span class="p">(</span><span class="n">fileURL</span><span class="p">,</span> <span class="n">destfile</span> <span class="o">=</span> <span class="s2">&quot;./data/res.csv&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;curl&quot;</span><span class="p">)</span>
+<span class="n">dateDownloaded</span> <span class="o">&lt;-</span> <span class="n">date</span><span class="p">()</span>
+</pre></div>
+
+
+<p><strong>Note: If we use Mac and the fileURL starts with HTTPS, we need to set the third argument as "curl".</strong></p>
+<h4>Flat File</h4>
+<hr />
+<p>Define flat file:</p>
+<blockquote>
+<p>A flat file database is a database which, when not being used, is stored on its host computer system as an ordinary, non-indexed "flat" file. To access the structure of the data and manipulate it, the file must be read in its entirety into the computer's memory. </p>
+</blockquote>
+<p>use read.table() to load flat files into R, stored in RAM.</p>
+<p><strong>Note: read.table() is not the best way to read large data sets.</strong></p>
+<ul>
+<li>Excel files, most widely used format for sharing data.</li>
+</ul>
+<p><strong>Note: read.xlsx function need to install xlsx package, rJava package and Java SE 6.</strong></p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">xlsx</span><span class="p">)</span>
+<span class="n">fileUrl</span> <span class="o">&lt;-</span> <span class="s2">&quot;https://excel-file-url&quot;</span>
+<span class="n">download</span><span class="o">.</span><span class="n">file</span><span class="p">(</span><span class="n">fileUrl</span><span class="p">,</span> <span class="n">destfile</span> <span class="o">=</span> <span class="s2">&quot;./data/res.xlsx&quot;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;curl&quot;</span><span class="p">)</span>
+<span class="n">dateDownloaded</span> <span class="o">&lt;-</span> <span class="n">date</span><span class="p">()</span>
+</pre></div>
+
+
+<p>We use read.xlsx to read xlsx file data into R.</p>
+<div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">xlsx</span><span class="p">(</span><span class="s2">&quot;./data/res.xlsx&quot;</span><span class="p">,</span> <span class="n">sheetIndex</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Also, we can subset data with two arguments: colIndex and  rowIndex:</p>
+<div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">&lt;-</span> <span class="n">read</span><span class="o">.</span><span class="n">xlsx</span><span class="p">(</span><span class="s2">&quot;./data/res.xlsx&quot;</span><span class="p">,</span> <span class="n">sheetIndex</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colIndex</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="n">rowIndex</span> <span class="o">=</span> <span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Means get the data of row 2,3,4, column 1,2 from sheet 1 of res.xlsx.</p>
+<p><strong>Note: read.xlsx2 is faster than read.xlsx but unstable than read.xlsx when subsetting data.</strong></p>
+<ul>
+<li>XML files(Extensible markup language), frequently in storing structured data.</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">blog</span> <span class="n">src</span><span class="o">=</span><span class="s2">&quot;www.wangbo.info&quot;</span><span class="o">&gt;</span><span class="n">Getting</span> <span class="ow">and</span> <span class="n">Cleaning</span> <span class="n">Data</span><span class="o">&lt;/</span><span class="n">blog</span><span class="o">&gt;</span>
+</pre></div>
+
+
+<p>'<blog></blog>' represents <em>tag</em>, 'Getting and..Data' is <em>element</em> and 'src="..."' represents attribute.</p>
+<div class="highlight"><pre><span></span><span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;XML&quot;</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="s2">&quot;XML&quot;</span><span class="p">)</span>
+<span class="n">xmlUrl</span> <span class="o">&lt;-</span> <span class="s2">&quot;http://xml-file-path&quot;</span>
+<span class="n">data</span> <span class="o">&lt;-</span> <span class="n">xmlTreeParse</span><span class="p">(</span><span class="n">xmlUrl</span><span class="p">,</span> <span class="n">useInternal</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
+<span class="n">rootNode</span> <span class="o">&lt;-</span> <span class="n">xmlRoot</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">xmlName</span><span class="p">(</span><span class="n">rootNode</span><span class="p">)</span><span class="o">//</span><span class="n">get</span> <span class="n">root</span> <span class="n">name</span>
+<span class="n">names</span><span class="p">(</span><span class="n">rootNode</span><span class="p">)</span><span class="o">//</span><span class="n">get</span> <span class="n">child</span> <span class="n">names</span> <span class="n">of</span> <span class="n">root</span> <span class="n">node</span>
+</pre></div>
+
+
+<p>Access the child noode:</p>
+<div class="highlight"><pre><span></span><span class="n">rootNode</span><span class="p">[[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="n">rootNode</span><span class="p">[[</span><span class="mi">3</span><span class="p">]][[</span><span class="mi">1</span><span class="p">]]</span><span class="o">//</span><span class="n">get</span> <span class="n">the</span> <span class="mi">1</span><span class="n">st</span> <span class="n">child</span> <span class="n">of</span> <span class="n">node</span> <span class="mi">3</span> <span class="n">under</span> <span class="n">the</span> <span class="n">root</span> <span class="n">node</span>
+</pre></div>
+
+
+<p>xmlSApply can help us extract parts of the xml file:</p>
+<div class="highlight"><pre><span></span><span class="n">xmlSApply</span><span class="p">(</span><span class="n">rootNode</span><span class="p">[[</span><span class="mi">3</span><span class="p">]],</span> <span class="n">xmlValue</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Imaging my xml data is like this:</p>
+<div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="mi">200</span><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">message</span><span class="o">&gt;</span><span class="n">success</span><span class="o">&lt;/</span><span class="n">message</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">data</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">student</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="o">&gt;</span>
+            <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">wang</span> <span class="n">bo</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+            <span class="o">&lt;</span><span class="n">sexual</span><span class="o">&gt;</span><span class="n">male</span><span class="o">&lt;/</span><span class="n">sexual</span><span class="o">&gt;</span>
+            <span class="o">&lt;</span><span class="n">age</span><span class="o">&gt;</span><span class="mi">25</span><span class="o">&lt;/</span><span class="n">age</span><span class="o">&gt;</span>
+        <span class="o">&lt;/</span><span class="n">student</span><span class="o">&gt;</span>
+        <span class="o">&lt;</span><span class="n">student</span><span class="o">&gt;</span>
+            <span class="o">...</span>
+        <span class="o">&lt;/</span><span class="n">student</span><span class="o">&gt;</span>
+    <span class="o">&lt;/</span><span class="n">data</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">root</span><span class="o">&gt;</span>
+</pre></div>
+
+
+<p>rootNode[[3]] will return all student items and xmlSApply function will apply xmlValue to every student node, which returns raw content of each student node.</p>
+<p>Another function is xpathSApply:</p>
+<div class="highlight"><pre><span></span><span class="n">xpathSApply</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;xpath-expression&quot;</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Get more information in blog <strong>XPath</strong>.</p>
+<ul>
+<li>JSON, Javascript Obeject Notation, lightweight.</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">jsonlite</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">&lt;-</span> <span class="n">fromJSON</span><span class="p">(</span><span class="s2">&quot;json-file-path&quot;</span><span class="p">)</span>
+<span class="n">names</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">names</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">colname</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Data frame in R can be transfered to json:</p>
+<div class="highlight"><pre><span></span><span class="n">myjson</span> <span class="o">&lt;-</span> <span class="n">toJSON</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pretty</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>Reading Data</h4>
+<hr />
+<p><strong>From MySQL</strong></p>
+<p>First of all</p>
+<div class="highlight"><pre><span></span><span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;RMySQL&quot;</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="s2">&quot;RMySQL&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Connect/Disconnect:</p>
+<div class="highlight"><pre><span></span><span class="n">myDB</span> <span class="o">&lt;-</span> <span class="n">dbConnect</span><span class="p">(</span><span class="n">MySQL</span><span class="p">(),</span> <span class="n">user</span><span class="o">=</span><span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">&lt;-</span> <span class="n">dbGetQuery</span><span class="p">(</span><span class="n">myDB</span><span class="p">,</span> <span class="s2">&quot;show databases;&quot;</span><span class="p">)</span>
+<span class="n">dbDisconnect</span><span class="p">(</span><span class="n">myDB</span><span class="p">)</span>
+<span class="n">res</span>
+</pre></div>
+
+
+<p>We can also add a "db" parameter to decide which databse to access:</p>
+<div class="highlight"><pre><span></span><span class="n">mydb</span> <span class="o">&lt;-</span> <span class="n">dbConnect</span><span class="p">(</span><span class="n">MySQL</span><span class="p">(),</span> <span class="n">user</span> <span class="o">=</span> <span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;password&quot;</span><span class="p">,</span><span class="n">db</span> <span class="o">=</span> <span class="s2">&quot;ipmapping&quot;</span><span class="p">,</span><span class="n">host</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">)</span>
+<span class="n">tables</span> <span class="o">&lt;-</span> <span class="n">dbListTables</span><span class="p">(</span><span class="n">mydb</span><span class="p">)</span>
+<span class="n">fields</span> <span class="o">&lt;-</span> <span class="n">dbListFields</span><span class="p">(</span><span class="n">mydb</span><span class="p">,</span> <span class="s2">&quot;ipbelong&quot;</span><span class="p">)</span>
+<span class="n">query</span> <span class="o">&lt;-</span> <span class="n">dbGetQuery</span><span class="p">(</span><span class="n">mydb</span><span class="p">,</span> <span class="s2">&quot;select count(*) from ipbelong&quot;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">&lt;-</span> <span class="n">dbReadTable</span><span class="p">(</span><span class="n">mydb</span><span class="p">,</span> <span class="s2">&quot;ipbelong&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>dbSendQuery commend allow you send a query to databse without data return, is's useful cuz we can subset result to save memory.</p>
+<div class="highlight"><pre><span></span><span class="n">query</span> <span class="o">&lt;-</span> <span class="n">dbSendQuery</span><span class="p">(</span><span class="n">mydb</span><span class="p">,</span> <span class="s2">&quot;select * from ipmapping;&quot;</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">&lt;-</span> <span class="n">fetch</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+
+<p>After fetch the data to localhost, use dbClearResult commend to clear the query on the remote server:</p>
+<div class="highlight"><pre><span></span><span class="n">dbClearResult</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="n">dbDisconnect</span><span class="p">(</span><span class="n">mydb</span><span class="p">)</span>
+</pre></div>
+
+
+<p><strong>Notice: only select, do not insert, delete or update.</strong></p>
+<p><strong>from the web</strong></p>
+<p>Webscraping is to extract data from HTML website programatically.</p>
+<p><strong>It is recommended to use python to scrape, not R</strong></p>
+<div class="highlight"><pre><span></span><span class="n">con</span> <span class="o">=</span> <span class="n">url</span><span class="p">(</span><span class="s2">&quot;http://www.wangbo.info&quot;</span><span class="p">)</span>
+<span class="n">htmlCode</span> <span class="o">=</span> <span class="n">readLines</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
+<span class="n">close</span><span class="p">(</span><span class="n">con</span><span class="p">)</span>
+<span class="n">htmlCode</span>
+</pre></div>
+
+
+<p>Use XPath and xpathSapply:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">XML</span><span class="p">)</span>
+<span class="n">url</span> <span class="o">&lt;-</span> <span class="s2">&quot;www.wangbo.info&quot;</span>
+<span class="n">html</span> <span class="o">&lt;-</span> <span class="n">htmlTreeParse</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">useInternalNodes</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
+<span class="n">xpathSApply</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="s2">&quot;//p&quot;</span><span class="p">,</span> <span class="n">xmlValue</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Or use <em>httr</em> package:</p>
+<div class="highlight"><pre><span></span><span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;httr&quot;</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">httr</span><span class="p">)</span>
+<span class="n">html</span> <span class="o">&lt;-</span> <span class="n">GET</span><span class="p">(</span><span class="s2">&quot;www.wangbo.info&quot;</span><span class="p">)</span>
+<span class="n">content</span> <span class="o">=</span> <span class="n">content</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="k">as</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span><span class="p">)</span>
+<span class="n">html</span> <span class="o">&lt;-</span> <span class="n">htmlParse</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">asText</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+<span class="n">xpathSApply</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;//div[@class = &#39;article_title&#39;]&quot;</span><span class="p">,</span> <span class="n">xmlValue</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This can extract out all the article titles of my blog. If a website need a username and password, add an argument <em>authenticate</em></p>
+<div class="highlight"><pre><span></span><span class="n">html</span> <span class="o">&lt;-</span> <span class="n">GET</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">authenticate</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">,</span><span class="s2">&quot;password&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p><strong>From APIs</strong></p>
+<p>API = Application programming interfaces.</p>
+<p>Accessing data from an website with oauth, we need to regist an applications on this website, then:</p>
+<div class="highlight"><pre><span></span><span class="n">app</span> <span class="o">=</span> <span class="n">oauth_app</span><span class="p">(</span><span class="s2">&quot;weibo&quot;</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;key&quot;</span><span class="p">,</span> <span class="n">secret</span> <span class="o">=</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+<span class="n">sig</span> <span class="o">=</span> <span class="n">sign_oauth1</span><span class="o">.</span><span class="mi">0</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="s2">&quot;token&quot;</span><span class="p">,</span> <span class="n">token_secret</span> <span class="o">=</span><span class="s2">&quot;tokensecret&quot;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">GET</span><span class="p">(</span><span class="s2">&quot;https://api.somewebsite&quot;</span><span class="p">,</span> <span class="n">sig</span><span class="p">)</span> 
+</pre></div>
+
+
+<p>Understand OAuth 2.0</p>
+<p>Components: Resource Owner(User), Third Party Application(Client), Authorization Server, Resource Server.</p>
+<p><em>Client</em> need to get <em>User Data</em> from <em>API Provider</em> on <em>Resource Server</em>. Process:</p>
+<ol>
+<li>Client request authorization.</li>
+<li>User grant authorization.</li>
+<li>Client contact Authorization Server.</li>
+<li>Authorization Server return token to client.</li>
+<li>Client access Resource Server with token.</li>
+<li>Resource Server return data to client.</li>
+</ol>
+<h4>Subsetting and Sorting</h4>
+<hr />
+<p>subset data sets with row/col number or row/col name:</p>
+<div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[,</span><span class="mi">1</span><span class="p">]</span><span class="o">//</span><span class="k">return</span> <span class="n">col</span> <span class="mi">1</span>
+<span class="n">data</span><span class="p">[,</span><span class="s2">&quot;col1&quot;</span><span class="p">]</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;col1&quot;</span><span class="p">]</span><span class="o">//</span><span class="n">get</span> <span class="n">the</span> <span class="n">first</span> <span class="n">two</span> <span class="n">rows</span> <span class="n">elements</span> <span class="n">of</span> <span class="n">col1</span>
+</pre></div>
+
+
+<p>Subset with logical staments:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span><span class="p">[</span><span class="n">x</span><span class="err">$</span><span class="n">col1</span> <span class="o">&lt;=</span><span class="mi">3</span><span class="p">,]</span><span class="o">//</span><span class="n">get</span> <span class="nb">all</span> <span class="n">cols</span> <span class="n">where</span> <span class="n">the</span> <span class="n">first</span> <span class="n">col</span> <span class="n">value</span> <span class="n">less</span> <span class="n">than</span> <span class="mi">1</span>
+<span class="n">x</span><span class="p">[(</span><span class="n">x</span><span class="err">$</span><span class="n">col1</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="o">&amp;</span> <span class="n">x</span><span class="err">$</span><span class="n">col2</span> <span class="o">&gt;</span><span class="mi">4</span><span class="p">),]</span>
+<span class="n">x</span><span class="p">[(</span><span class="n">x</span><span class="err">$</span><span class="n">col1</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="o">|</span> <span class="n">x</span><span class="err">$</span><span class="n">col2</span> <span class="o">&gt;</span><span class="mi">4</span><span class="p">),]</span>
+</pre></div>
+
+
+<p>If the data has NA, for example:</p>
+<div class="highlight"><pre><span></span><span class="n">col1</span> <span class="n">col2</span>
+<span class="mi">111</span>  <span class="n">NA</span>
+<span class="mi">222</span>  <span class="n">NA</span>
+<span class="mi">1324</span> <span class="mi">9</span>
+</pre></div>
+
+
+<p>Subset:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span><span class="p">[</span><span class="n">x</span><span class="err">$</span><span class="n">col2</span> <span class="o">&gt;</span> <span class="mi">8</span><span class="p">]</span>
+</pre></div>
+
+
+<p>It'll return the result together with NA. Use which function to ignore NA values:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span><span class="p">[</span><span class="n">which</span><span class="p">(</span><span class="n">x</span><span class="err">$</span><span class="n">var2</span><span class="o">&gt;</span><span class="mi">8</span><span class="p">),]</span>
+</pre></div>
+
+
+<p>Sorting with function <em>sort</em>:</p>
+<div class="highlight"><pre><span></span><span class="n">sort</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col1</span><span class="p">)</span>
+<span class="n">sort</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col1</span><span class="p">,</span> <span class="n">decreasing</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
+</pre></div>
+
+
+<p>If the column contains <em>NA</em> value, sort will automatically drop these NAs. We can use <em>na.last</em> argument to keep these value:</p>
+<div class="highlight"><pre><span></span><span class="n">sort</span><span class="p">(</span><span class="n">x</span><span class="err">$</span><span class="n">col2</span><span class="p">,</span> <span class="n">na</span><span class="o">.</span><span class="n">last</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Order a data set with particular variable:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">x</span><span class="err">$</span><span class="n">col1</span><span class="p">),]</span>
+</pre></div>
+
+
+<p>If col1 has some same variables, we set another col to order the dataset:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">x</span><span class="err">$</span><span class="n">col1</span><span class="p">,</span> <span class="n">x</span><span class="err">$</span><span class="n">col2</span><span class="p">),]</span>
+</pre></div>
+
+
+<p>Sorting with <em>plyr</em> package:</p>
+<div class="highlight"><pre><span></span><span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;plyr&quot;</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">plyr</span><span class="p">)</span>
+<span class="n">arrange</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">col1</span><span class="p">)</span>
+<span class="n">arrange</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">desc</span><span class="p">(</span><span class="n">col1</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Add new col to a dataframe:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span><span class="err">$</span><span class="n">col4</span> <span class="o">&lt;-</span> <span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">cbing</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+</pre></div>
+
+
+<h4>Summarzing Data</h4>
+<p>Use <em>head</em>, <em>tail</em> function to look a bit of the data:</p>
+<div class="highlight"><pre><span></span><span class="n">head</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">tail</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Use <em>summary</em> to overall summary of data:</p>
+<div class="highlight"><pre><span></span><span class="n">summary</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
+</pre></div>
+
+
+<p><em>str</em> function for more depth information:</p>
+<div class="highlight"><pre><span></span><span class="nb">str</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
+</pre></div>
+
+
+<p><em>quantile</em> function to view data variablity:</p>
+<div class="highlight"><pre><span></span><span class="n">quantile</span><span class="p">(</span><span class="n">dataframe</span><span class="err">$</span><span class="n">colname</span><span class="p">,</span> <span class="n">na</span><span class="o">.</span><span class="n">rm</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+<span class="n">quantile</span><span class="p">(</span><span class="n">dataframe</span><span class="err">$</span><span class="n">colname</span><span class="p">,</span> <span class="n">probs</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">))</span>
+</pre></div>
+
+
+<p><em>table</em> is use table to show variables distribution:</p>
+<div class="highlight"><pre><span></span><span class="n">table</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col</span><span class="p">,</span> <span class="n">useNA</span><span class="o">=</span> <span class="s1">&#39;ifany&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The argument <em>useNA = 'ifany'</em> will add na column if the dataset contains na values.</p>
+<p>Initial a 2-dimension table with:</p>
+<div class="highlight"><pre><span></span><span class="n">table</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col1</span><span class="p">,</span> <span class="n">data</span><span class="err">$</span><span class="n">col2</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Use <em>is.na</em> the check for missing values:</p>
+<div class="highlight"><pre><span></span><span class="nb">sum</span><span class="p">(</span><span class="ow">is</span><span class="o">.</span><span class="n">na</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col</span><span class="p">))</span>
+<span class="nb">any</span><span class="p">(</span><span class="ow">is</span><span class="o">.</span><span class="n">na</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col</span><span class="p">))</span>
+</pre></div>
+
+
+<p>To check if data meet the condition:</p>
+<div class="highlight"><pre><span></span><span class="nb">all</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+
+<p>To check rows/columns sum number in dataset:</p>
+<div class="highlight"><pre><span></span><span class="n">colSums</span><span class="p">(</span><span class="ow">is</span><span class="o">.</span><span class="n">na</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="n">rowSums</span><span class="p">(</span><span class="ow">is</span><span class="o">.</span><span class="n">na</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Check values with specific characteristics:</p>
+<div class="highlight"><pre><span></span><span class="n">table</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col</span> <span class="ow">in</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="s2">&quot;2&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>will return the sum of column data which are equal to 1 or 2. Return these data:</p>
+<div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="err">$</span><span class="n">col</span> <span class="ow">in</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="s2">&quot;2&quot;</span><span class="p">)]</span>
+</pre></div>
+
+
+<p>Use <em>object.size</em> to check the size of dataset:</p>
+<div class="highlight"><pre><span></span><span class="nb">object</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;Mb&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>Create new variables</h4>
+<hr />
+<p>create index for dataset:</p>
+<div class="highlight"><pre><span></span><span class="n">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">seq</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+
+
+<p>or use along argument:</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">&lt;-</span> <span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">33</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">41</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">seq</span><span class="p">(</span><span class="n">along</span> <span class="o">=</span> <span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+
+<p>use <em>%in%</em> to subsetting variables:</p>
+<div class="highlight"><pre><span></span><span class="n">data</span><span class="err">$</span><span class="n">column</span> <span class="o">%</span><span class="ow">in</span><span class="o">%</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;data1&quot;</span><span class="p">,</span> <span class="s2">&quot;data2&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>will return all the column data in variable data1 and data2.</p>
+<p>Use ifelse function to define conditions:</p>
+<div class="highlight"><pre><span></span><span class="n">resData</span> <span class="o">&lt;-</span> <span class="n">ifelse</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">TRUE</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">)</span>
+<span class="n">table</span><span class="p">(</span><span class="n">resData</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This function set a condition <em>data$col &lt; 0</em>, if element meet this condition, will return <em>TRUE</em>, else return <em>FALSE</em>.</p>
+<p>Create categorical variables:</p>
+<div class="highlight"><pre><span></span><span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;Hmisc&quot;</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">Hmisc</span><span class="p">)</span>
+<span class="n">dataGoups</span> <span class="o">&lt;-</span> <span class="n">cut2</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col</span><span class="p">,</span> <span class="n">g</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">table</span><span class="p">(</span><span class="n">dataGroups</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This function will seprate column data into 4 groups according to the quantile.</p>
+<p>use <em>factor</em> to create factor variables:</p>
+<div class="highlight"><pre><span></span><span class="n">dataFactor</span> <span class="o">&lt;-</span> <span class="n">factor</span><span class="p">(</span><span class="n">data</span><span class="err">$</span><span class="n">col</span><span class="p">)</span>
+<span class="n">class</span><span class="p">(</span><span class="n">dataFactor</span><span class="p">)</span>
+<span class="n">levels</span><span class="p">(</span><span class="n">dataFactor</span><span class="p">)</span>
+</pre></div>
+
+
+<p>And some common transforms:</p>
+<div class="highlight"><pre><span></span><span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">ceiling</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">digits</span> <span class="o">=</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">signif</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">digits</span> <span class="o">=</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">log2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>Reshaping data</h4>
+<hr />
+<div class="highlight"><pre><span></span><span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;reshape2&quot;</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">reshape2</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Melt(糅合) data frame:</p>
+<div class="highlight"><pre><span></span><span class="n">melt</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">id</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;col1&quot;</span><span class="p">,</span> <span class="s2">&quot;col2&quot;</span><span class="p">),</span> <span class="n">measure</span><span class="o">.</span><span class="n">vars</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;col3&quot;</span><span class="p">,</span><span class="s2">&quot;col4&quot;</span><span class="p">))</span>
+</pre></div>
+
+
+<p>This function will melt col3 and col4 together and show together with col1 and col2, the original data frame was transformed to have more cols but less rows.</p>
+<p>Cast data frames into different shapes:</p>
+<div class="highlight"><pre><span></span><span class="n">dcast</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">col</span> <span class="o">~</span> <span class="n">variableCol</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This function will caregory col column and apply function to these caregorized data.</p>
+<p><em>split</em> function can split data according columns:</p>
+<div class="highlight"><pre><span></span><span class="n">split</span><span class="p">(</span><span class="n">InsectSpray</span><span class="err">$</span><span class="n">count</span><span class="p">,</span> <span class="n">InsectSpray</span><span class="err">$</span><span class="n">spray</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>dplyr package</h4>
+<hr />
+<p>Is a package about working with data frames. Use mtcars data set as an example:</p>
+<p><em>Select</em>:</p>
+<div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span>
+<span class="n">packageVersion</span><span class="p">(</span><span class="s2">&quot;dplyr&quot;</span><span class="p">)</span>
+<span class="n">select</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">mpg</span><span class="p">:</span><span class="n">disp</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This will return columns from mpg to disp. Add a minus will return the other columns:</p>
+<div class="highlight"><pre><span></span><span class="n">select</span><span class="p">(</span><span class="n">mtcats</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">mpg</span><span class="p">:</span><span class="n">disp</span><span class="p">))</span>
+</pre></div>
+
+
+<p><em>match</em> function returns the index of column:</p>
+<div class="highlight"><pre><span></span><span class="n">gearIndex</span> <span class="o">&lt;-</span> <span class="n">match</span><span class="p">(</span><span class="s2">&quot;gear&quot;</span><span class="p">,</span> <span class="n">names</span><span class="p">(</span><span class="n">mtcats</span><span class="p">))</span>
+</pre></div>
+
+
+<p><em>filter</em> function is used to subset rwos based on conditions.</p>
+<div class="highlight"><pre><span></span><span class="n">hp</span><span class="o">.</span><span class="n">f</span> <span class="o">&lt;-</span> <span class="nb">filter</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">hp</span> <span class="o">&gt;</span> <span class="mi">175</span><span class="p">)</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">f</span> <span class="o">&lt;-</span> <span class="nb">filter</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">hp</span> <span class="o">&gt;</span> <span class="mi">175</span> <span class="o">&amp;</span> <span class="n">gear</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">hp</span><span class="o">.</span><span class="n">f</span> <span class="o">&lt;-</span> <span class="nb">filter</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="err">!</span><span class="ow">is</span><span class="o">.</span><span class="n">na</span><span class="p">(</span><span class="n">gear</span><span class="p">))</span>
+</pre></div>
+
+
+<p><em>arrange</em> function arrange column data from lowest to highest.</p>
+<div class="highlight"><pre><span></span><span class="n">gear</span><span class="o">.</span><span class="n">arrange</span> <span class="o">&lt;-</span> <span class="n">arrange</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">gear</span><span class="p">)</span>
+<span class="n">gear</span><span class="o">.</span><span class="n">arrange</span> <span class="o">&lt;-</span> <span class="n">arrange</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">desc</span><span class="p">(</span><span class="n">gear</span><span class="p">))</span>
+</pre></div>
+
+
+<p><em>rename</em> function allow us to rename a column name:</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">&lt;-</span> <span class="n">rename</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">waitingtime</span> <span class="o">=</span> <span class="n">wt</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The left argument of expression 'waitingtime = wt' is the new column name, and the right one is the old one.</p>
+<p><em>mutate</em> function is to create or transform variables:</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">&lt;-</span> <span class="n">mutate</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">wtDetrend</span> <span class="o">=</span> <span class="n">wt</span><span class="o">-</span><span class="n">mean</span><span class="p">(</span><span class="n">wt</span><span class="p">,</span> <span class="n">na</span><span class="o">.</span><span class="n">rm</span> <span class="o">=</span> <span class="n">T</span><span class="p">))</span>
+</pre></div>
+
+
+<p>This function will create a column named wtDetrend.</p>
+<div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">&lt;-</span> <span class="n">mutate</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">gearNum</span> <span class="o">=</span> <span class="n">factor</span><span class="p">(</span><span class="mi">1</span><span class="o">*</span><span class="p">(</span><span class="n">gear</span><span class="o">&gt;</span><span class="mi">4</span><span class="p">),</span> <span class="n">label</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">&quot;v4&quot;</span><span class="p">,</span> <span class="s2">&quot;v6&quot;</span><span class="p">)))</span>
+</pre></div>
+
+
+<p><strong>Tip: tbl_df function cann make data frame more compact and readable.</strong></p>
+<p><em>group_by</em> function allow us to group data by column name:</p>
+<div class="highlight"><pre><span></span><span class="n">group_by</span><span class="p">(</span><span class="n">mtcars</span><span class="p">,</span> <span class="n">gear</span><span class="p">)</span>
+<span class="n">summarise</span><span class="p">(</span><span class="n">group_by</span><span class="p">(</span><span class="n">mtcats</span><span class="p">,</span><span class="n">gear</span><span class="p">),</span> <span class="n">mean</span><span class="p">(</span><span class="n">wt</span><span class="p">))</span>
+</pre></div>
+
+
+<p>This will return the mean value of wt group by gear.</p>
+<h4>Merging data</h4>
+<hr />
+<p>Merging two data frames are based on the common columns.</p>
+<div class="highlight"><pre><span></span><span class="n">merge</span><span class="p">(</span><span class="n">dataframe1</span><span class="p">,</span> <span class="n">dataframe2</span><span class="p">,</span> <span class="n">by</span><span class="o">.</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;col1Common&quot;</span><span class="p">,</span> <span class="n">by</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="s2">&quot;col2Common&quot;</span><span class="p">,</span> <span class="nb">all</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This function will merge datafram1 and dataframe2, which by.x&amp;by.y function defined their common column name separately.</p>
+<p><strong>Note, plyr package also provide join function to merge dataframes, join_all can merge three or more datasets.</strong></p>
+<h4>Editing text variables</h4>
+<p>some useful function:</p>
+<div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">&lt;-</span> <span class="n">Wang</span><span class="o">.</span><span class="n">Bo</span>
+<span class="n">tolower</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="n">toUpper</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="n">strsplit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span> <span class="n">fixed</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+<span class="n">substr</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">paste</span><span class="p">(</span><span class="s2">&quot;wang&quot;</span><span class="p">,</span> <span class="s2">&quot;bo&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>sub and gsub function:</p>
+<div class="highlight"><pre><span></span><span class="n">ip</span> <span class="o">&lt;-</span> <span class="s2">&quot;192.168.1.1&quot;</span>
+<span class="n">sub</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">ip</span><span class="p">,</span> <span class="n">fixed</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span><span class="o">//</span><span class="n">replace</span> <span class="n">only</span> <span class="n">one</span>
+<span class="n">gsub</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">ip</span><span class="p">,</span> <span class="n">fixed</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span><span class="o">//</span><span class="n">replace</span> <span class="nb">all</span> <span class="o">.</span>
+</pre></div>
+
+
+<p>grep function is used to search specify variable:</p>
+<div class="highlight"><pre><span></span><span class="n">grep</span><span class="p">(</span><span class="s2">&quot;road 1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="err">$</span><span class="n">column</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+<span class="n">grepl</span><span class="p">(</span><span class="s2">&quot;road 1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="err">$</span><span class="n">column</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This will return all rows contain 'road 1'. grepl will return T or F.</p>
+<h4>Dates</h4>
+<div class="highlight"><pre><span></span><span class="n">d1</span> <span class="o">&lt;-</span> <span class="n">date</span><span class="p">()</span> <span class="o">//</span><span class="n">Character</span> <span class="k">class</span>
+<span class="nc">d2</span> <span class="o">&lt;-</span> <span class="n">Sys</span><span class="o">.</span><span class="n">Date</span><span class="p">()</span> <span class="o">//</span><span class="n">Date</span> <span class="k">class</span>
+</pre></div>
+
+
+<p><strong>format</strong> function is used to formatting dates:</p>
+<ol>
+<li>%d = 0-31</li>
+<li>%a = abbreviated weekday</li>
+<li>%A = unabbreviated weekday</li>
+<li>%m = 0-12</li>
+<li>%b = abbreviated month</li>
+<li>%B = unabbreviated month</li>
+<li>%y = 2 digit year</li>
+<li>%Y = 4 digit year</li>
+</ol>
+<div class="highlight"><pre><span></span><span class="n">format</span><span class="p">(</span><span class="n">d2</span><span class="p">,</span> <span class="s2">&quot;%a %b </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">as</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="n">d2</span><span class="p">,</span> <span class="s2">&quot;%a %b </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Julian date time:</p>
+<div class="highlight"><pre><span></span><span class="n">weekdays</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span>
+<span class="n">months</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span>
+<span class="n">julian</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span> <span class="o">//</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">days</span> <span class="n">since</span> <span class="mi">1970</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span>
+</pre></div>
+
+
+<p>Use <strong>Sys.timezone</strong> to get current timezone:</p>
+<div class="highlight"><pre><span></span><span class="n">Sys</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">location</span> <span class="o">=</span> <span class="n">T</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Useful package : lubridate.</p>
+<p>-- end --</p>
+  </div>
+  <div class="article_meta">
+    <p>Category: <a href="http://bwanglzu.github.io/category/data-science.html">Data Science</a></p>
+    <p>Tags:
+      <a href="http://bwanglzu.github.io/tag/data-analysis.html">Data Analysis</a>,      <a href="http://bwanglzu.github.io/tag/r.html">R</a>    </p>
+    <p>Comments: <a href="#" onclick="javascript:toggleComments();return false;">toggle</a></p>
+  </div>
+
+    <div id="article_comments" style="display:block">
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+           var disqus_identifier = "data-deluge-getting-and-cleaning-data.html";
+           (function() {
+           var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+           dsq.src = 'http://wangbodelftblog.disqus.com/embed.js';
+           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+          })();
+        </script>
+    </div>
+
+</article>
+
+    <footer>
+<p><a href="http://bwanglzu.github.io/" class="button_accent">&larr; Back to Index</a></p>
+<script language="javascript">
+    function toggleComments() {
+        var commentDiv = document.getElementById("article_comments");
+        (commentDiv.style.display == "none") ? commentDiv.style.display = "block" : commentDiv.style.display = "none";
+        return false;
+    }
+</script>
+    </footer>
+
+    <div id="ending_message">
+      <p>&copy; wangbo@Delft. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/giulivo/pelican-svbhack" target="_blank">github</a><span id="busuanzi_container_site_pv"> Site Viewed <span id="busuanzi_value_site_pv"></span> Times</span>. .</p>
+    </div>
+  </main>
+</body>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":["tsina","weixin","sqq","fbook","twi","linkedin","copy"],"bdPic":"","bdStyle":"1","bdSize":"24"},"slide":{"type":"slide","bdImg":"5","bdPos":"right","bdTop":"100"},"image":{"viewList":["tsina","weixin","fbook","linkedin","twi","sqq"],"viewText":"Share：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["tsina","weixin","fbook","linkedin","twi","sqq"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</html>

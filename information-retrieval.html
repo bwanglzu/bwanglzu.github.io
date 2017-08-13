@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="http://bwanglzu.github.io/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/style.css">
+
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/xcode.css">
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/googlefont.css">
+  
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/nprogress.css">
+  <script src="http://bwanglzu.github.io/theme/js/nprogress.js" type="text/javascript"></script>
+  <script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.js" type="text/javascript"></script>
+  <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+  
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="wangbo@Delft">
+  <meta name="description" content="Posts and writings by wangbo@Delft">
+  <link rel="Shortcut Icon" href = "http://bwanglzu.github.io/theme/images/Favicon.png">
+
+
+<meta name="keywords" content="Information Retrieval">
+
+  <title>
+Information Retrieval  </title>
+
+</head>
+
+<body>
+  <script type="text/javascript">
+    NProgress.configure({ minimum: 0.1 });
+    NProgress.configure({ ease: 'ease', speed: 1500 });
+    NProgress.configure({ trickleRate: 0.01, trickleSpeed: 1000 });
+    NProgress.configure({ showSpinner: false });
+    NProgress.start();
+    $(document).ready(function(){
+        NProgress.done();
+    });
+</script>
+  <aside>
+    <div id="user_meta">
+      <a href="http://bwanglzu.github.io/index.html">
+        <img src="http://bwanglzu.github.io/theme/images/logo.png" alt="logo">
+      </a>
+      <h2><a href="http://bwanglzu.github.io/index.html">wangbo@Delft</a></h2>
+      <p>every little helps a mickle</p>
+      <ul>
+        <li><a href="http://bwanglzu.github.io/pages/about.html">About</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/academic.html">Academic</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/contact.html">Contact</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/curriculum-viate.html">Curriculum Viate</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+<p>Posted on 2016-02-13</p>
+    </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="http://bwanglzu.github.io/information-retrieval.html">Information Retrieval</a></h3>
+  </div>
+  <div class="article_text">
+    <h3>General Introduction</h3>
+<p><em>IR</em> can be defined like this:</p>
+<blockquote>
+<p>Information retrieval (IR) is finding material (usually documents) of an unstructured nature (usually text) that satisfies an information need
+from within large collections (usually stored on computers).</p>
+</blockquote>
+<p>Today IR has changed from:</p>
+<ol>
+<li>researchers to public</li>
+<li>from material and document to unstructed data and semi-structed data</li>
+<li>file of IR expand to supporting users browsering, filtering, even future processing a set of document.</li>
+<li>small scale to large scale</li>
+</ol>
+<p>In order to get access to text information, two modes:</p>
+<ol>
+<li>PULL Mode (search engine), user take initiative, need ad hoc information, including querying and browsing.</li>
+<li>PUSH Mode (recommendation system), system take the initiative, good understanding of user's need.</li>
+</ol>
+<h3>Text Retrieval</h3>
+<p>Given collection of documents, user send a query to express information need, retrieval system returns relevant documents to users. TR is in the core of IR.</p>
+<p>Text retrieval and DB search?</p>
+<ol>
+<li>Unstructured vs structured data.</li>
+<li>ambiguous vs well-defined semantics for both data and query.</li>
+<li>Incomplete vs complete specification.</li>
+<li>Returns relevant documents vs matched records.</li>
+</ol>
+<p>TR is an empirically defined problem, can not be mathematically prove which method is better, need evaluation.</p>
+<p>We have n kinds of languages, this is named <strong>Vocabulary</strong>:</p>
+<div class="math">$$
+V = {w_1,w_2, ... w_n}
+$$</div>
+<p>
+and m <strong>words</strong> in a query,
+</p>
+<div class="math">$$
+q = q1, q2, ... , q_m\,\,\,where q_i\in V
+$$</div>
+<p>
+<strong>Documents</strong>:
+</p>
+<div class="math">$$
+d_i = d_{i1}, d_{i2},...,d_{im}\,\,\,where d_{ij} \in V
+$$</div>
+<p>
+<strong>Collection</strong>:
+</p>
+<div class="math">$$
+C = \{ d_{1}, d_{2},.., d_{m}\}
+$$</div>
+<p>
+Set of <strong>Revelant Document</strong>:
+</p>
+<div class="math">$$
+R(q) \subseteq C
+$$</div>
+<p>
+<strong>Task</strong> is to compute an approximation of R(q) named R'(q). 2 Strategies:</p>
+<ol>
+<li>Document selection, a binary classifier used to decide whether the  document is relevant or not relevant.</li>
+<li>Document ranking, use a relevance measure function to decide whether one document is most likely to be relevant to another.</li>
+</ol>
+<p>For document selection:</p>
+<div class="math">$$
+R'(q) = \{d \in C | f(d,q_ = 1\}\,\,\, where f(d,q) \in {0,1}
+$$</div>
+<p>
+For document ranking:
+</p>
+<div class="math">$$
+R'(q) = \{d \in C | f(d,q) &gt; \theta \}\,\,\, where f(d,q) \in R
+$$</div>
+<p>
+and <span class="math">\(\theta\)</span> is the threshold. According to <strong>Probability Ranking Principle</strong>, the utility of a document to a user is independent to the utility of other document to the same user. At the same time, user is likely to browse result sequentially. Ranking is more preferred. </p>
+<p><strong>So the main challenge for designing a search engine is to design an effective ranking algorithm.</strong></p>
+<h3>Design a Ranking Algorithm</h3>
+<p>A good ranking function should rank relevant documents on top of non-relevant ones, key problems is to measure the likelyhood that document d is relevant to query q. Achieve this gold by design a retrieval model. </p>
+<ol>
+<li>Similarity based models, for example, vector space model.</li>
+<li>Probabilistic models, query and documents are all random variables</li>
+<li>Axiomatic Model, f(q,d) must satisfy a set a constraints.</li>
+</ol>
+<p>For example:</p>
+<div class="math">$$
+f(q="word1, word2, word3", d)
+$$</div>
+<p>
+The times word1 occur in document d is named <strong>Term Frequency</strong>(TF).</p>
+<p>The length of document d is denoted as <strong>Document Length</strong>.</p>
+<p>The frequency of word1 occurs in collection, is named <strong>Document Frequency</strong>(DF):
+</p>
+<div class="math">$$
+P(word1 | collection)
+$$</div>
+<p>
+State of the art ranking functions rely on</p>
+<ol>
+<li>bag of words representation</li>
+<li>Term Frequency and Document Frequency</li>
+<li>Document Length</li>
+</ol>
+<h3>Vector Space Model(VSM)</h3>
+<p>We represent document and query by a term vector.</p>
+<ul>
+<li>Term: basic concept, word or phrase.</li>
+<li>Each Term defines one dimension</li>
+<li>N term define an N-dimensional space</li>
+<li>Query vector :q=(x_1, … x_n), x_i is query term weight.</li>
+<li>Doc vector: d=(y_1, …, y_n), y is doc term weight.</li>
+</ul>
+<p>Define relevance(q,d) = similarity(q,d) = f(q,d).</p>
+<p>In VSM,  query is denoted as:
+</p>
+<div class="math">$$
+q = (x_1, x_2,...x_n)\,\,\, where \, x\in\{0,1\}
+$$</div>
+<p>
+1 means current term is present, 0 means absent. Similarly:
+</p>
+<div class="math">$$
+d = (y_1, y_2,...,y_n)\,\,\, where \,y\in \{0,1\}
+$$</div>
+<p>
+Using dot product to measure similarity:
+</p>
+<div class="math">$$
+Sim(q,d) = q.*d = \sum_{i=1}^Nx_iy_i
+$$</div>
+<p>
+But this simplest VSM is not effect for 2 reasons:</p>
+<ol>
+<li>Same words occur multiple times will not take into consideration (dot product = 0).</li>
+<li>Some terms are naturally more important than other terms (stop words).</li>
+</ol>
+<p>Improved VSM: Term Frequency Vector:</p>
+<div class="math">$$
+q =(x_1, x_2,... x_n)\,\,\,where\,x_i=count\,of\,term\,w_i\,in\,query
+$$</div>
+<p>
+And
+</p>
+<div class="math">$$
+d = (y_1,y_2,...y_n)\,\,\,where\,y_i=count\,of\,term\,w_1\,in\,doc
+$$</div>
+<p>
+still use dot product
+</p>
+<div class="math">$$
+sim(q,d) = q.*d
+$$</div>
+<p>
+Further Improvement of VSM: Adding Inverse Document Frequency (IDF). At this time
+</p>
+<div class="math">$$
+d = (y_1, y_2,...y_n)\,\,\, where\,y_i=c(w_i,d)*IDF(w_i)
+$$</div>
+<p>
+and
+</p>
+<div class="math">$$
+IDF(w_i)=log[(M+1)/k)]
+$$</div>
+<p>
+M is the total number of docs in the collection, k is the document frequency. Works very well to penalise popular terms.</p>
+<p>Still have problems. If one term occus many times, score could be very high.</p>
+<p>Now, the similarity function is denoted as:</p>
+<div class="math">$$
+f(q,d) = \sum_{i=1}^Nx_iy_i = \sum_{w\in q \cap d}c(w,q)c(w,d)log\frac{M+1}{k}
+$$</div>
+<p>If one word occur in one document for multiple times and the final score could be very large, this is not what we want.  We need to some sort of penalise c(w,d) using a logarithm function. This is named <strong>TF Transformation</strong> , so far, transformation worked best is <strong>BM 25</strong>. where</p>
+<div class="math">$$
+y = \frac{(k+1)x}{x+k}
+$$</div>
+<p>
+If k is relatively small, the c(w,d) is likely to be approximately equals to <span class="math">\(x\in\{0,1\}\)</span>. In contrast, if k is very large, the similarity function approximately equals to f(q,d) denoted before (no penalise). So it is very flexible and robust to use BM 25.</p>
+<p>Still has some problem, what if document length dosn't equal? Long doc must be more relevant than shot doc? Should penalise long documents, this is named <strong>Document Length Normalization</strong>.</p>
+<ul>
+<li>long doc is more likely to match query</li>
+<li>need to avoid over-penalization</li>
+</ul>
+<p><strong>Pivoted Length Normalization</strong>:</p>
+<div class="math">$$
+nomrmalizer = 1 - b + b*\frac{d}{average\,length}
+$$</div>
+<p>
+where <span class="math">\(b\in[0,1]\)</span>. Bu adjust b from 0 to 1, we can control the degree of normalisation.</p>
+<p>State of the Art VSM Ranking functions:</p>
+<p>Pivoted Length Normalization VSM:
+</p>
+<div class="math">$$
+f(q,d)=\sum_{w\in q\cap d}c(w,q)\frac{ln[1+ln[1+c(w,d)]]}{1-b+b\frac{d}{average\,length}}log\frac{M+1}{df(w)}
+$$</div>
+<p>
+BM 25:
+</p>
+<div class="math">$$
+f(q,d) = \sum_{w\in q\cap d}c(w,q)\frac{(k+1)c(w,d)}{c(w,d)+k(1-b+b\frac{d}{average\,length}}log\frac{M+1}{df(w)}
+$$</div>
+<p>
+Where to improve?</p>
+<ol>
+<li>stemming, stop words, latent semantic indexing, n-grams.</li>
+<li>language specific and domain-specific tokenisation.</li>
+<li>Consine distance? Eculiden distance?</li>
+</ol>
+<p>To normalize lexical units, map words with similar meaning into same indexing term. To root form, named <strong>Stemming</strong>. Chinese need segmentation.</p>
+<p>Further improvement of BM25</p>
+<p><strong>BM25-F</strong>, use BM25 for documents with structures. (Robertson, Stephen, Hugo Zaragoza, and Michael Taylor. "Simple BM25 extension to multiple weighted fields." <em>Proceedings of the thirteenth ACM international conference on Information and knowledge management</em>. ACM, 2004.).</p>
+<p>Tokenization, word has the same meaning should be mapped into the same index term (semantically similarlly terms). Stemming, map words to it's root form. </p>
+<h2>Indexing</h2>
+<p><strong>Indexing</strong> is to convert documents to data structure that enable fast search. Inverted index is the dominating indexing method. Using dictionary + posting list, relevant knowledge have a good introduce in <an introduciton to information retrieval>.</p>
+<p>When it comes to distribution of words:</p>
+<ol>
+<li>exists stable language-independent patterns in how people use natural language.</li>
+<li>Stop words occurs very frequently, most words occur rarely.</li>
+<li>Most frequent words in one document may rare in another document.</li>
+</ol>
+<p>This is described by <strong>Zipf's Law</strong>:</p>
+<div class="math">$$
+rank\,*\,frequency \approx\,constant
+$$</div>
+<p>
+Data structure for inverted index</p>
+<ul>
+<li>dictionary, meed fast random access, memory hash table, b-tree, trie..</li>
+<li>Posting, disk, contain docID, term frequency, term position etc, compression is desirable (save space and save loading time because IO is expensive).</li>
+</ul>
+<p><img alt="inverted index" src="img/invertedindex.jpg" /></p>
+<p>Deal with the problem of huge index vs limited memory. Sort-base methods:</p>
+<ol>
+<li>collect termID, docID, freq</li>
+<li>sort local tuples to make <em>runs</em> (sort by doc-id -&gt; sort by term)</li>
+<li>pair-wise merge runs</li>
+<li>ourput inverted file</li>
+</ol>
+<p>After these process, posting-lsit could be faily large and we need to compression this posting list:</p>
+<ol>
+<li>Term Frequency compression (zipf's law, small values tend to occur more frequently)</li>
+<li>Doc ID compression, using <em>d-gap</em> strategy, store difference.</li>
+</ol>
+<p>Index compression, we can use several methods, including binary coding, unary coding, <span class="math">\(\gamma\)</span> coding, <span class="math">\(\delta\)</span> coding etc. After compression, need to un-compress.</p>
+<p>A general overview of scoring function:</p>
+<div class="math">$$
+f(q, d) = f_a(h(g(t_1, d, q),...,g(t_k,d,q), f_d(d)f_q(q))
+$$</div>
+<p>
+where <span class="math">\(f_d(d)\)</span> and <span class="math">\(f_q(q)\)</span> are adjust terms, <span class="math">\(g(t_i,d,q)\)</span> compute weight of a matched term, use h(x) to aggregate all these term weights. For fast search:</p>
+<ol>
+<li>Adgust terms need to be pre-computed.</li>
+<li>Maintain a score aggregator h.</li>
+<li>For each query term t, fetch inverted list,  return all documents match this query term. For each match, compute function g, give us a weight, update aggregator and incrementally compute h.</li>
+</ol>
+<p>Some further improvement:</p>
+<ol>
+<li>Cache popular terms in memory.</li>
+<li>Parallel computing.</li>
+</ol>
+<h3>IR System Evaluation</h3>
+<p>WHY?</p>
+<ol>
+<li>Measure system utility.</li>
+<li>Compare different systems and models.</li>
+</ol>
+<p>Prepare a <strong>RESUABLE</strong>(cranfield evaluation methodology) test collection consist:</p>
+<ul>
+<li>A document collection (resonable size).</li>
+<li>A test suite of information needs, expressible as queries.</li>
+<li>A set of relevance judgments, standardly a binary assessment of eitherrelevant or nonrelevant for each query-document pair.</li>
+<li>Measures to quantify how well system matches ideal ranked list.</li>
+</ul>
+<p>Respect to user information need, test document collection is given a binary classification as either <em>relevant</em> or <em>non-relevant</em>. <strong>50</strong> information needs has usually been found to be a sufficientminimum, then average performance.</p>
+<p>The information need to be <em>overt</em>. Many systems can do parameter turnning for better performance, it is not a good idea as may lead to over-confident result. Better way is to define a independent test document collection. There exists some <em>Standard Test Collections</em> such as <strong>TREC</strong>, <strong>GOV2</strong>..</p>
+<p>In summary, need queries q1, q2 … qn, document collection d1, d2 … dm, and relevance judgement.</p>
+<h4>Evaluation of Unranked retrieval sets</h4>
+<p>Most frequent metrics, <em>precision</em> and <em>recall</em>.
+</p>
+<div class="math">$$
+precision = \frac{\#relevant\,items\,retrieved}{\#retrieved\,items} = P(relevant|retrieved)
+$$</div>
+<div class="math">$$
+recall = \frac{\#relevant\,tiems\,retrieved}{\#relevant\,itmes} = P(retrieved|relevant)
+$$</div>
+<p>Denote with tp, fp, fn, tn:
+</p>
+<div class="math">$$
+P = \frac{tp}{(tp+fp)}
+$$</div>
+<div class="math">$$
+R = \frac{tp}{(tp+fn)}
+$$</div>
+<p>It is important to use both metrics together. For different use, there may be a tradeoff between 2 scores.</p>
+<p>A single measure that trades off precision versus recall is the <strong>F measure</strong>, which is the weighted harmonic mean of precision and recall:
+</p>
+<div class="math">$$
+F = \frac{(\beta^2+1)PR}{\beta^2P+R}\,\,\,\,\, where \,\beta^2=\frac{1-\alpha}{\alpha}
+$$</div>
+<p>
+The default balanced F measure equallyweights precision and recall, which means making α = 1/2 or β = 1. Here:
+</p>
+<div class="math">$$
+F_{\beta-1} = \frac{2PR}{P+R}
+$$</div>
+<p>
+Values of β &lt; 1emphasize precision, while values of β &gt; 1 emphasize recall. For example, avalue of β = 3 or β = 5 might be used if recall is to be emphasized. Recall,precision, and the F measure are inherently measures between 0 and 1, butthey are also very commonly written as percentages, on a scale between 0and 100.</p>
+<p>For <strong>ranked</strong> retrieval result, we need some different metrics.  In a ranked retrieval context,appropriate sets of retrieved documents are naturally given by the top k retrieveddocuments P@K. For each such set, precision and recall values can be plotted to give a <em>precision-recall curve</em>.</p>
+<p>Precision-recall curves have a distinctive saw-tooth shape: if the (k + 1) document retrieved is nonrelevant then recall is the same as for the top k documents, but precision has dropped. If it is relevant, then both precision and recall increase, and the curve jags up and to the right.</p>
+<p>The standard way to do this is with an <em>interpolated  precision</em>: <em>11-point interpolated average precision.</em>  For each information need, the interpolated precision is measuredat the 11 recall levels of 0.0, 0.1, 0.2, . . . , 1.0.  For each recall level, wethen calculate the arithmetic mean of the interpolated precision at that recalllevel for each information need in the test collection. A composite precisionrecallcurve showing 11 points can then be graphed. </p>
+<p><em>MAP</em>, mean average precision, arithmetic mean of average precision over a set of queries. <em>gMAP</em>, geometric mean of average precision over a set of quries.</p>
+<p>When there's only one relevant document in collection (known item search, for example, search github home page). Use <em>reciprocal rank</em> = 1/r, where r is the position of the single relevant document. Multiple queries can try <em>mean reciprocal rank</em>.</p>
+<p><em>NDCG</em>, normalizer discount of accumulative gain. First, get gain value for n documents, and cumulative gain</p>
+<table>
+<thead>
+<tr>
+<th>doc</th>
+<th>gain</th>
+<th>cumulative gain</th>
+<th>Discounted CG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>doc1</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>doc2</td>
+<td>2</td>
+<td>3+2</td>
+<td>3 + 2/log2</td>
+</tr>
+<tr>
+<td>doc3</td>
+<td>5</td>
+<td>3+2+5</td>
+<td>3 + 2/log2 + 5/log(3)</td>
+</tr>
+<tr>
+<td>doc4</td>
+<td>2</td>
+<td>3+2+5+2</td>
+<td>3 + 2/log2 + 5/log(3) + 2/log(4)</td>
+</tr>
+</tbody>
+</table>
+<p>Normalize DCG with IDEAL DCG use</p>
+<div class="math">$$
+\frac{DCG}{IDEAL\,DCG}
+$$</div>
+<p>
+we are able to map DCG into range [0,1]. And NDCG@K is also applicable.</p>
+<p>Use statistical significance testing to know the variation of score (Wilcoxon test).</p>
+<p>Use polling methods to get top-k documents, combine all top-K sets into a doc pool.</p>
+<h4>Probabilistic Model</h4>
+<p>Assume query and document are observed from random variables. Compute the relevance judgement by:
+</p>
+<div class="math">$$
+f(q,d) = p(R = 1 | d,q) \,\,\, R \in (0\,or\,1)
+$$</div>
+<p>
+Here, under the condition of doc d and query q, assume they are relevant. If user want to trieval document d,  what's the probability of user enter query q?
+</p>
+<div class="math">$$
+p(R = 1 | d, q) \approx p(q|R=1,d)
+$$</div>
+<p>
+The left term won't work because we can not predict user query and we do not have unseen documents. How? Approximate it use <em>query likelyhood retrieval model</em>. Which document is the most likely relevant document according to user query?</p>
+<p>Query Likelihood:
+</p>
+<div class="math">$$
+f(q,d) = p(q,d)
+$$</div>
+<p>
+Use language model to model user query text. Statisticsl language model is a probability distribution over word sequence. <em>Unigram Model</em> is the simplest model, treat text independently:
+</p>
+<div class="math">$$
+p(w_1, w_2,...,w_n) = p(w_1)p(w_2)...p(w_n)
+$$</div>
+<p>
+and:
+</p>
+<div class="math">$$
+\sum_{i=1}^Np(w_i) = 1
+$$</div>
+<p>
+Based on different topic, we need different term distribution (Background LM, Collection LM (e.g. Document Related to CS), Document LM(e.g.  An IR paper)). We assume query is geenrated by sampling words from documents. Assume each query word is generated independently:</p>
+<div class="math">$$
+p(q = "term1, term2"|doc) = \frac{c("term1", doc)}{len(doc)} * \frac{c("term2", doc)}{len(doc)}
+$$</div>
+<p>
+But if query has term3, term3 not appear in doc, the final score = 0. We change assumption, allow user query not in document. Instead using term frequency, use language model.</p>
+<p>In general, use log-likelihood:
+</p>
+<div class="math">$$
+f(q,d) = \sum_{i=1}^nlogp(w_i|d)=\sum_{w\in V}c(w,q)*logp(w|d)
+$$</div>
+<p>
+Here, w in V denotes for document has the term w. c(w,q) denotes for count of user query words and <span class="math">\(logp(w|d)\)</span> denotes for the language model. The language model is what we need to estimate.</p>
+<p>Use <em>smoothing</em> method. Let the probability of an unseen word be proportional to its probability given by a reference LM.</p>
+<p>If w is seen in d
+</p>
+<div class="math">$$
+p(w|d) = P_{seen}(w|D)
+$$</div>
+<p>
+otherwise:
+</p>
+<div class="math">$$
+p(w|d) = \alpha_dp(w|C)
+$$</div>
+<p>
+Here, we use whole collection C as a reference language model.
+</p>
+<div class="math">$$
+logp(q|d) = \sum_{w\in V, c(w,d)&gt;0}c(w,q)logp_{seen}(w|d)+\sum_{m\in V,c(w,d)=0}c(w,q)log\alpha_dp(w|C)
+$$</div>
+<p>
+This can be rewrite as:
+</p>
+<div class="math">$$
+logp(q|d) = \sum_{w\in V,c(w,d)&gt;0}c(w,q)log\frac{P_{seen}(w|d)}{\alpha p(w|C)}+|q|log\alpha_d + \sum_{w\in V}c(w,q)logp(w|C)
+$$</div>
+<p>
+The final term has gives no impact on final ranking result, then we have:
+</p>
+<div class="math">$$
+f(q,d) = \sum_{w\in d, w\in q}c(w,q)[log\frac{P_{seen}(w|d)}{\alpha_dp(w|C)}]+nlog\alpha_d
+$$</div>
+<p>
+Use <em>linear interpolation smoothing</em> (Jelinek-Mercer). Smooth <span class="math">\(P_{seen}(w|d)\)</span>:
+</p>
+<div class="math">$$
+p(w|d) = (1-\lambda)\frac{c(w,d)}{len(doc)}+ \lambda p(w|C)
+$$</div>
+<p>
+where <span class="math">\(\lambda\)</span> is the smoothing parameter, <span class="math">\(\lambda \in [0,1]\)</span>.</p>
+<p>Plug into ranking function:
+</p>
+<div class="math">$$
+f_{JM}(q,d) = \sum_{w\in d, w\in q}c(w,q)log[1+\frac{1-\lambda}{\lambda}*\frac{c(w,d)}{len(doc)p(w|C)}]
+$$</div>
+<p>
+Another smoothing named <em>Dirichlet Prior Smoothing</em> (bayesian).
+</p>
+<div class="math">$$
+p(w|d) = \frac{c(w,d) + \mu p(w|C)}{len(doc) + \mu}
+$$</div>
+<p>
+where <span class="math">\(\mu\)</span> is the smoothing parameter, <span class="math">\(\mu \in [0, + \infty]\)</span>.  Plug into Dirichlet Prior Ranking function:
+</p>
+<div class="math">$$
+f_{DIR}(q,d)=[\sum_{w\in d, w \in qc(w,q)}log[1+\frac{c(w,d)}{\mu p(w|C)}]]+nlog\frac{\mu}{\mu + len(doc)}
+$$</div>
+<p>
+where n is the length of query.</p>
+<h4>FeedBack</h4>
+<p>For VSM, geometrically, we want to move the user query towards to rerevant documents instead of non-relevant documents. Use <em>Rocchio Feedback</em>, where:
+</p>
+<div class="math">$$
+q_{feedback}=\alpha q_{origin}+\frac{\beta}{|D_{rel}|}\sum_{d_i \in D_{rel}}d_i-\frac{\gamma}{|D_{nonrel}|}\sum_{d_j\in D_{nonrel}}d_j
+$$</div>
+<p>
+Here, when user search use query q_origin, the system automatically change the query to q_feedback. The second terms control the closeness of relevent terms, the third term control the distance to non-relevant documents. Alpha control the original term, beta control positive documents, gamma control negative documents.</p>
+<p>In practice, negative samples are not important, need to avoid overfitting (to ensure origin query contribute the most).</p>
+<h4>Web Search</h4>
+<p>Challenges:</p>
+<ol>
+<li>Scalability, size of web, serve user query efficiently. Use parallel indexing and searching.</li>
+<li>Inforamtion quality and spam, use spam detection.</li>
+<li>Dynamics of web, new pages appears constantly. Link analysis.</li>
+</ol>
+<p>Component 1 Crawler.  Some strategies:</p>
+<ol>
+<li>Breadth-first.</li>
+<li>Parallel.</li>
+<li>Polite.</li>
+<li>Incremental crawling (resource optimisation).</li>
+<li>Track.</li>
+<li>Discover new pages.</li>
+</ol>
+<p><em>Link Analysis</em>: <em>PageRank</em> and <em>HITS</em> are two kinds of most widely used retrieval model based on importance instead of relevance judgement.</p>
+<p>Different information needs, additional information and information quality varies made it not sufficient of traditional search model.</p>
+<ol>
+<li>Exploting links to improve scoring</li>
+<li>Exploting clickthrough for implicit feed back</li>
+<li>rely on machine learning to combine different features.</li>
+</ol>
+<p>According to links (inter/outer), can be divede to <em>Authority</em> page and <em>Hub</em> page. Example PageRank:</p>
+<div class="math">$$
+P(d_i) = average\,probability\,of\,visting \,page\, d_i
+$$</div>
+<p>
+Basicaly, in-link counts is most important. Build a transition matrix indicates the probability of a random user click a specific page.</p>
+<p>PageRank,the probability of random surfer visting a webpage converge to a fixed, steady-state quantity.</p>
+<p><img alt="pagerank" src="img/pagerank.png" /></p>
+<p>Example Transform Matrix:</p>
+<div class="math">$$
+A =\begin{bmatrix}0 &amp; 1 &amp; 0 &amp; 0 &amp; 0\\1 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\0 &amp; 0 &amp; 0 &amp; 1 &amp; \frac{1}{2}\\ 0 &amp; 0 &amp; 1 &amp; 0 &amp; \frac{1}{2}\\0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \end{bmatrix}
+$$</div>
+<p>
+And:
+</p>
+<div class="math">$$
+M = (1 - m) * A + m * S
+$$</div>
+<p>
+where S <span class="math">\(\in R^{n*n}, S_{i,j}=1/n\)</span>, m <span class="math">\(\in\)</span> [0,1). And pagerank score equals:
+</p>
+<div class="math">$$
+x = lim_{k\to\infty}M^kx_0
+$$</div>
+<p>
+Until converge. The problem of <em>Dangling Nodes</em>, a node without outgoing  links (img, music, pdf, protected pages….account for over 50%).</p>
+<h4>Learning 2 Rank</h4>
+<p>Given a query-doc, define various kinds of features X(Q, D). For example, BM25, probability models, PageRank for document D. Use some training data to train a model. Detailed information in blog <a href="www.wangbo.info/learning-to-rank.html">learning to rank</a>.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    var location_protocol = (false) ? 'https' : document.location.protocol;
+    if (location_protocol !== 'http' && location_protocol !== 'https') location_protocol = 'https:';
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = location_protocol + '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+  </div>
+  <div class="article_meta">
+    <p>Category: <a href="http://bwanglzu.github.io/category/data-science.html">Data Science</a></p>
+    <p>Tags:
+      <a href="http://bwanglzu.github.io/tag/information-retrieval.html">Information Retrieval</a>    </p>
+    <p>Comments: <a href="#" onclick="javascript:toggleComments();return false;">toggle</a></p>
+  </div>
+
+    <div id="article_comments" style="display:block">
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+           var disqus_identifier = "information-retrieval.html";
+           (function() {
+           var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+           dsq.src = 'http://wangbodelftblog.disqus.com/embed.js';
+           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+          })();
+        </script>
+    </div>
+
+</article>
+
+    <footer>
+<p><a href="http://bwanglzu.github.io/" class="button_accent">&larr; Back to Index</a></p>
+<script language="javascript">
+    function toggleComments() {
+        var commentDiv = document.getElementById("article_comments");
+        (commentDiv.style.display == "none") ? commentDiv.style.display = "block" : commentDiv.style.display = "none";
+        return false;
+    }
+</script>
+    </footer>
+
+    <div id="ending_message">
+      <p>&copy; wangbo@Delft. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/giulivo/pelican-svbhack" target="_blank">github</a><span id="busuanzi_container_site_pv"> Site Viewed <span id="busuanzi_value_site_pv"></span> Times</span>. .</p>
+    </div>
+  </main>
+</body>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":["tsina","weixin","sqq","fbook","twi","linkedin","copy"],"bdPic":"","bdStyle":"1","bdSize":"24"},"slide":{"type":"slide","bdImg":"5","bdPos":"right","bdTop":"100"},"image":{"viewList":["tsina","weixin","fbook","linkedin","twi","sqq"],"viewText":"Share：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["tsina","weixin","fbook","linkedin","twi","sqq"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</html>
