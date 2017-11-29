@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ## for client-side less
+  <link rel="stylesheet/less" type="text/css" href="http://bwanglzu.github.io/theme/css/style.less">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js" type="text/javascript"></script>
+  -->
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/style.css">
+
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/xcode.css">
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/googlefont.css">
+  
+  <link rel="stylesheet" type="text/css" href="http://bwanglzu.github.io/theme/css/nprogress.css">
+  <script src="http://bwanglzu.github.io/theme/js/nprogress.js" type="text/javascript"></script>
+  <script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.js" type="text/javascript"></script>
+  <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
+  
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="wangbo@Delft">
+  <meta name="description" content="Posts and writings by wangbo@Delft">
+  <link rel="Shortcut Icon" href = "http://bwanglzu.github.io/theme/images/Favicon.png">
+
+
+<meta name="keywords" content="Chatbot">
+
+  <title>
+Lessons learned from Develop Chatbot  </title>
+
+</head>
+
+<body>
+  <script type="text/javascript">
+    NProgress.configure({ minimum: 0.1 });
+    NProgress.configure({ ease: 'ease', speed: 1500 });
+    NProgress.configure({ trickleRate: 0.01, trickleSpeed: 1000 });
+    NProgress.configure({ showSpinner: false });
+    NProgress.start();
+    $(document).ready(function(){
+        NProgress.done();
+    });
+</script>
+  <aside>
+    <div id="user_meta">
+      <a href="http://bwanglzu.github.io/index.html">
+        <img src="http://bwanglzu.github.io/theme/images/logo.png" alt="logo">
+      </a>
+      <h2><a href="http://bwanglzu.github.io/index.html">wangbo@Delft</a></h2>
+      <p>every little helps a mickle</p>
+      <ul>
+        <li><a href="http://bwanglzu.github.io/pages/about.html">About</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/academic.html">Academic</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/contact.html">Contact</a></li>
+        <li><a href="http://bwanglzu.github.io/pages/curriculum-viate.html">Curriculum Viate</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+<p>Posted on 2017-11-13</p>
+    </header>
+
+<article>
+  <div class="article_title">
+    <h3><a href="http://bwanglzu.github.io/lessons-learned-from-develop-chatbot.html">Lessons learned from Develop Chatbot</a></h3>
+  </div>
+  <div class="article_text">
+    <h4>Type of conversation</h4>
+<p>One-shot conversation/Turn-taking conversation.</p>
+<p>One-shot conversation, user gives an input, expect certain result and conversation ends. For example: </p>
+<blockquote>
+<p>Q: What's the time?</p>
+<p>A: It's 10:30 pm.</p>
+</blockquote>
+<p>Turn-taking conversation, more specially, conversation flow. For example:</p>
+<blockquote>
+<p>User: I want to book a flight .</p>
+<p>Bot: Where are'u going?</p>
+<p>User: visit Amsterdam.</p>
+</blockquote>
+<p>This could be way more complicated than one-shot.</p>
+<p><strong>Lessons learned 1, keep conversation flow simple.</strong> Reduce turns otherwise user might loose patient.</p>
+<p><strong>Lessons learned 2, motivate/encourage user with certain words</strong>. Such as "Great!", "Nice!", "Thanks for your message!".</p>
+<p><strong>Lessons learned 3, user certain type of design to indicate the system is listenning/responding.</strong> </p>
+<p><strong>Lessons learned 4, response diversification.</strong> To make conversation more nature:</p>
+<blockquote>
+<p>*bad</p>
+<p>User: What's the time?</p>
+<p>Bot: 10:30 pm.</p>
+<p>User: What's the time?</p>
+<p>Bot: 10:31 pm.</p>
+<p>*Better</p>
+<p>User: What's the time?</p>
+<p>Bot: It's 10:30 pm now!</p>
+<p>User: What's the time?</p>
+<p>Bot: It's half past ten.</p>
+</blockquote>
+<p><strong>Lessons learned 5, response diversification without losing the focus.</strong></p>
+<blockquote>
+<p>*Best (as far as I know)</p>
+<p>User: What's the time?</p>
+<p>Bot: It's <strong>10:30 pm</strong> now!</p>
+</blockquote>
+<p>The idea is to use diversified response to make conversation more nature, while use certain type of design (such as bold, italic) to highlight the core part of answer.</p>
+<p>Possible solution: 1. Response templates 2. Neural networks &amp; Nature language generation.</p>
+<h4>Difficulties of Conversational Bot</h4>
+<p>Use <a href="">wit.ai</a>, <a href="">api.ai</a> or develop your own? Rely on such platform might make everything much easier, but rely on third party platforms might leverage certain risks.</p>
+<p>User pattern matching or machine learning/deep learning? Pattern matching is easier to implement and seems easier to use. However, nature language and dialogue is something difficult to express with patterns (two reasons: 1. user input is so different 2. user might not explicitly express their intents in the text).</p>
+<p><strong>Lessons learned 6: for small companies, use third-party platform, for large companies, confidential related companies, develop your own</strong>.</p>
+<p><strong>Lessons learned 7: Always keep an eye on cutting-edge AI developments</strong>.</p>
+<p>Uncertainty intent. In a real-world scenario, intent recognition always return an list of predict intents with certain probability. For example:</p>
+<blockquote>
+<p>*INTENT ENGINE:</p>
+<p>INTENT_FIRST: recongize as a numeric number of 1.</p>
+<p>INTENT_SELECT_FIRST: recognize as user want to select the first option.</p>
+<p>*CONVERSATION:</p>
+<p>Bot: Great! Which offer would you like to choose? 1. 500 mb 5 EU per month. 2. 1 GB 8 eu per month. 3. unlimited 20 eu per month.</p>
+<p>User: the fisrt offer.</p>
+<p>*BACKEND</p>
+<p>MESSAGE RECEIVED: "The first offer". Intent predicted as: [{"Intent_first": 0.33, "Intent_select_first": 0.67}]</p>
+</blockquote>
+<p>It seems "Intent_first" received a lower probability than "intent_select_first", however, "Intent_first" also received a relative high probability. Which is dangerous!</p>
+<p><strong>Lessons learned 8: Carefully design intent engine, try to maximize the margin between similar intents!</strong></p>
+<p><strong>Lessons learned 9: For certain type of intents can not get rid of, use explicit message/design to get confirm from user.</strong>  Two important points,1. careffuly set threshold 2. Do not forget lesson one.</p>
+<p>Intent in conversation flow could be crucial. It has to follow certain state and track context. For example:</p>
+<blockquote>
+<p>User: Can you help me create an flight booking?</p>
+<p>*ENGINE: INTNET_BOOK_FLIGHT (intent recognition)</p>
+<p>*STATE: STATE_BOOK_FLIGHT_ASK_DESTINATION (expect next state)</p>
+<p>*CONTEXT: {"INTENT": "INTENT_BOOK_FLIGHT", "STATE": "STATE_BOOK_FLIGHT_ASK_DESTINATION"} (track context)</p>
+<p>Bot: What's your expect destination? (Successful recognize intent, trigger state and keep track context)</p>
+<p>….</p>
+<p>Bot: Do you prefer first class or second class?</p>
+<p>User: 2nd class.</p>
+<p>*ENGINE: INTENT_CLASS_SELECTED</p>
+<p>*STATE: STATE_BOOK_FLIGHT_ASK_INSURANCE</p>
+<p>*CONTEXT: {….."FROM": "AMSTERDAM", "TO": "BEIJING", "CLASS": 2}</p>
+<p>BOT: Do you want to buy insurance or not? (everything seems fine now, but..)</p>
+<p>USER 1: HAHAHAHA SOME TEST MESSAGE! HAHAHAHA</p>
+<p>USER 2: I want to book a bus ticket.</p>
+</blockquote>
+<p>Clearly, at the moment systems is waiting for (User case 1) YES/NO response, what if the user input of out of "expectation"?</p>
+<p>Similarily, the system is waiting for (User case 2) YES/NO response, however, the user want to quit the current conversation flow and re-start a new one. The intent "INTENT_BOOK_BUS" can be correctly identified, however, how to deal with the current conversation flow?</p>
+<p>Or even, what if the user just stop typing (maybe he has something else to do)?</p>
+<p><strong>Lessons learned 10: handle exception message just like what we have done in programming</strong>.</p>
+<p><strong>Lessons learned 11: Think of a mechanism to jump out current conversation flow if new intent it recognised (which is not the message (state) we are expecting) </strong>.</p>
+<p><strong>Lessons learned 12: Do not clear state/context unless user explicitly confirm he wanna restart</strong>. Because user might:</p>
+<blockquote>
+<p>User: Lets continue..</p>
+<p>Bot: Great! Do you want to buy insurance for your flight?</p>
+</blockquote>
+<p><strong>Lessons learned 13: remind user if he want to continue.</strong>:</p>
+<blockquote>
+<p>User: Let's continue</p>
+<p>Bot: Great! You're interested in a flight from <strong>Amsterdam</strong> to <strong>Beijing</strong> at <strong>10:AM</strong> AMS time on <strong>Nov 10th, 2017</strong> for <strong>1</strong> person, <strong>2nd</strong> class. Do you want to buy insurance for your flight?</p>
+</blockquote>
+<p><strong>Lessons learned 14: for entity extraction, follow lessons learned 7!</strong>. For example:</p>
+<blockquote>
+<p>Bot: What is your destination?</p>
+<p>User: I want to go to Beijing.</p>
+</blockquote>
+<p>This is a simple example, we want to extract BEIJING as destination, pattern matching might help, but seems dangerous. Name Entity Recognition/ Keyphrase extraction seems to be a  more general idea.</p>
+<p><strong>Lessons learned 15: Patient, tolerate mistakes and keep optimize</strong>. Track conversation in database, analyze and keep optimise (especially the failure cases).</p>
+<p>Our chatbot:</p>
+<p><img alt="chatbot" src="https://ww4.sinaimg.cn/mw690/93aceac7gw1fawu6ksegoj20920acq38.jpg" /></p>
+  </div>
+  <div class="article_meta">
+    <p>Category: <a href="http://bwanglzu.github.io/category/data-science.html">Data Science</a></p>
+    <p>Tags:
+      <a href="http://bwanglzu.github.io/tag/chatbot.html">Chatbot</a>    </p>
+    <p>Comments: <a href="#" onclick="javascript:toggleComments();return false;">toggle</a></p>
+  </div>
+
+    <div id="article_comments" style="display:block">
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+           var disqus_identifier = "lessons-learned-from-develop-chatbot.html";
+           (function() {
+           var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+           dsq.src = 'http://wangbodelftblog.disqus.com/embed.js';
+           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+          })();
+        </script>
+    </div>
+
+</article>
+
+    <footer>
+<p><a href="http://bwanglzu.github.io/" class="button_accent">&larr; Back to Index</a></p>
+<script language="javascript">
+    function toggleComments() {
+        var commentDiv = document.getElementById("article_comments");
+        (commentDiv.style.display == "none") ? commentDiv.style.display = "block" : commentDiv.style.display = "none";
+        return false;
+    }
+</script>
+    </footer>
+
+    <div id="ending_message">
+      <p>&copy; wangbo@Delft. Built using <a href="http://getpelican.com" target="_blank">Pelican</a>. Theme by Giulio Fidente on <a href="https://github.com/giulivo/pelican-svbhack" target="_blank">github</a><span id="busuanzi_container_site_pv"> Site Viewed <span id="busuanzi_value_site_pv"></span> Times</span>. .</p>
+    </div>
+  </main>
+</body>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":["tsina","weixin","sqq","fbook","twi","linkedin","copy"],"bdPic":"","bdStyle":"1","bdSize":"24"},"slide":{"type":"slide","bdImg":"5","bdPos":"right","bdTop":"100"},"image":{"viewList":["tsina","weixin","fbook","linkedin","twi","sqq"],"viewText":"Share：","viewSize":"16"},"selectShare":{"bdContainerClass":null,"bdSelectMiniList":["tsina","weixin","fbook","linkedin","twi","sqq"]}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</html>
