@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>bo.blog</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="bo.blog Atom Feed" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">bo.blog</a></h1>
+                <nav><ul>
+                    <li><a href="/category/thoughts.html">thoughts</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/metric-learning-vs-self-supervised-learning-which-produce-better-embeddings-for-instance-retrieval.html">Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2021-03-20T22:17:00+01:00">
+                Published: Sat 20 March 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
+        </address>
+<p>In <a href="/category/thoughts.html">thoughts</a>.</p>
+<p>tags: <a href="/tag/representation-learning.html">representation learning</a> <a href="/tag/instance-retrieval.html">instance retrieval</a> <a href="/tag/image-retrieval.html">image retrieval</a> <a href="/tag/metric-learning.html">metric learning</a> </p>
+</footer><!-- /.post-info --><p>Instance-level image retrieval is an important component of image retrieval tasks.
+Given an image as <em>Query</em>,
+an instance retrieval system aims at find the same objects <em>D</em> with respect to <em>Q</em>.
+For instance, given an image of the Great Wall, instance retrieval should be able to find other Great Wall images,
+under different circumstances.
+Or return facial images of the same person while querying with another facial image of a celebrity.</p>
+<p>For a long period of time, (Supervised)Metric-Learning has always been the answer:</p>
+<ol>
+<li>Prepare a training set, with class labels.</li>
+<li>Construct triplets (or tuples, or more..), each triplet contains an anchor image, a positive and a negative.</li>
+<li>Apply triplet margin loss by maximizing the distance metric between anchor and negative pair, while pull anchor and positive closer.</li>
+</ol>
+<p><img alt="triplet" src="images/triplet_loss.png">
+<em>source: <a href="https://arxiv.org/abs/1503.03832">FaceNet: A Unified Embedding for Face Recognition and Clustering</a>.</em></p>
+<p>Apparently, supervised deep metric learning is more than that.
+In the past months, while developing <a href="https://github.com/jina-ai/finetuner">Finetuner</a> at Jina AI,
+we went through a lot of traps.</p>
+<p>For instance, Should we allow user to manually create "hard-negatives"?
+The answer is a clear No.
+But in the first iteration,
+the input of our data is <em>Document</em> with 2 <em>Matches</em> like this:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
+
+<span class="n">anchor</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span>
+    <span class="n">uri</span><span class="o">=</span><span class="s1">&#39;this-is-the-anchor-image.jpg&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span>
+    <span class="n">uri</span><span class="o">=</span><span class="s1">&#39;this-is-an-positive-image&#39;</span><span class="p">,</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span> <span class="c1"># positive share the same label as anchor</span>
+<span class="p">)</span>
+<span class="n">neg</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span>
+    <span class="n">uri</span><span class="o">=</span><span class="s1">&#39;this-is-a-negative-image&#39;</span><span class="p">,</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span> <span class="c1"># negative has an different label </span>
+<span class="p">)</span>
+<span class="n">anchor</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">pos</span><span class="p">,</span> <span class="n">neg</span><span class="p">])</span>
+</code></pre></div>
+
+<p>This "gives" user the power to perform manual positive/negative selection.
+However, does it make any sense?
+Probably not for several reasons:</p>
+<ol>
+<li>It takes efforts for users to perform negative mining, in another word,  it take times.</li>
+<li>Since it might takes time, user might just randomly sampling negatives from other classes.</li>
+<li>Negative samples might not being effectively used. Suppose user select 1 positive 4 negatives, we end up with 4 triplets, not much, quantity wise.</li>
+<li>Negative samples might not being selected has hard-negatives, given in most cases, hard-negatives brings more benefits while model training.</li>
+</ol>
+<p>What is the better approach?
+Do it automatically!</p>
+<p>Suppose you have a deep metric learning training task,
+your batch size is 128,
+this is what we offer you:</p>
+<ol>
+<li>For each batch of 128 samples, we sample N items from the same class, e.g. 4. In the end, you got 32 classes within batch.</li>
+<li>Consider each item as an anchor image, then you get 3 positives (4 - 1).</li>
+<li>Consider each item as an anchor image, then you get 124 negatives (128 - 3 - 1).</li>
+<li>In the end, within this batch, how many triplets you get? Much larger than 4 if we perform manual negative selection (1 anchor-1 pos-4 neg)!</li>
+</ol>
+<p>Now you have a set of triplets, you can either:</p>
+<ol>
+<li>Training your model with all automatically selected triplets (with no mining).</li>
+<li>Training your model with different mining strategies (easy/semi-hard/hard negative mining).</li>
+</ol>
+<p>This makes training a metric learning model much more effectively.
+While you might still discover some minor issues:</p>
+<p>If we want to apply hard-negative mining,
+and if I can only perform hard-negative mining within the batch,
+this means I can only select the "best" hard-negative within a batch,
+not over the entire dataset.</p>
+<p>This is true, and 2 possible solutions: either you increase your batch size to generate a bigger "pool size" and reduce the issue,
+or you perform cross-batch hard-negative mining.
+Previous solution is easier,
+while could be limited by your hard-ware capacity.
+After all, GPU-memory is too limited compare with RAM.
+The later strategy, could resolve the issue.
+While it is tricky to bring the code into a reusable component of a software.</p>
+<p>We've approved that deep metric learning + triplet margin loss + sampling + hard-negative mining is extremely useful,
+and, it is especially the case,
+for instance-level image retrieval.</p>
+<p>Since 2018, Google launched <a href="https://www.kaggle.com/c/landmark-retrieval-2021">Google Landmark Retrieval 2021</a>.
+This is a perfect playground for instance-level image retrieval.</p>
+<p>If you look at the top solutions, almost all of them use deep metric learning and some add-on tricks.
+Includes different loss functions, pooling layers etc.
+Nothing other than deep metric learning.
+The latest winner,
+according to leaderboard,
+reached a mAP@100 of <strong>0.53751</strong>.</p>
+<p>If you employ a pre-trained ResNet/EfficientNet trained on ImageNet dataset,
+remove the last classification layer and turn it into a <strong>Embedding model</strong> (feature extractor),
+you can get roughly <strong>0.25 - 0.30</strong> mAP@100.
+Quite significant improvement, right?</p>
+<p>To now, we've discussed the basic idea of deep metric learning and how good it performs on Instance Retrieval task.
+You might ask, what about self-supervised learning (SSL), are you still going to mention that?
+I say yes, this is the turning point.</p>
+<p>SSL has been a part of representation learning for some time.
+But we discovered significant progress has been made in the year of 2021.
+Such as SimCLR, SImCLRv2, MoCo, MocoV2, BYOL etc.
+These approaches aimes at learn a good representation (embedding model) with NO labels.
+<strong>AND THIS IS HUGE IN REAL-WORLD CASES</strong>.</p>
+<p>As a machine learning engineer,
+How many times have you tried to convince your BOSS the importance of the labeling?
+How many times have you tried to label by yourself?
+Have you tried convince your manager to spend some money on crowdsourcing platforms to get labels for you?
+Are you tired of, build a user-in-the-loop pipeline to deploy a not-perfect model first, and expect to collect more labels as time pass by?</p>
+<p>If non of above make any sense to you, good for you.
+But, what inspiring me most, is finally,
+we have a SSL paper evaluated on Instance Retrieval Task!
+This is published by facebook: <a href="https://arxiv.org/pdf/2104.14294.pdf">Emerging Properties in Self-Supervised Vision Transformers</a>.
+We'll call it <strong>DINO</strong> in the following section.
+Let's first see some evaluation result:</p>
+<p><img alt="dino" src="images/eval_dino"></p>
+<p>If you look at the results without reading the paper,
+it might confuse you.
+Basically, they trained the model on Google Landmark Dataset we mentioned above.
+While evaluated results on Oxford and Paris dataset (another 2 smaller version of landmark datasets).
+And they claim the results are even better than some supervised approaches.</p>
+<p>How did they achieve it without using any labels?</p>
+<p>Trick1: Multi-stage cropping. The basic idea of self-supervised learning is,
+given an image, it apply augmentation on this image two times,
+and generate 2 different <em>Views</em> of the same image.
+Even through these two different <em>Views</em> of the same image looks different,
+but we know they're from the same classes: we augmented the image.
+Multi-stage cropping is another step: we crop the input image, let's say 6 times.
+2 times we use <strong>Global Cropping</strong> and we perform <strong>Local Cropping</strong> 4 times.
+Global cropping basically crops over 50% percent of the original image,
+while local cropping crops around 20-30% of the original image.
+After cropping, we transform the <strong>GlobalCropping</strong> back to 224 by 224,
+<strong>LocalCropping</strong> to 96 by 96.</p>
+<p>Trick2: Patches and Vision Transformer. Once augmentation finished,
+we split the images into patches (a small portion of the augmented image).
+Feed patches as inputs to a Vision Transformer model.
+The final <strong>[CLS]</strong> token of 768d becomes the learned representation.</p>
+<p>Trick3: Self-distillation and momentum update. Distillation normally involves 2 models,
+one smaller-sized student model and one larger sized teacher model.
+For DINO, the author used two identical models (ViT) for both student and teacher.
+While apply stop-gradient for teacher model (no back backpropagation),
+while update teacher model in an exponential moving average manner.
+EMA places a greater weight and significance on the most recent data points.
+At early stage, student network post a bit more significant impact on teacher networks' parameters.
+As training goes on, the student network has less-and-less impact on teacher network, until training finish.</p>
+<p>Trick4: Centering and Sharpening. According to previous SSL research,
+when training model with no negative samples (only tuples) can result in model collapse.
+The model can not distinguish which is good,
+which is bad since we only have positive samples.
+The author introduced Centering parameter <strong>C</strong> to keep the running average of the rated teacher network ouputs.
+And applied always deduct this running average when computing normalized cross-entropy loss.</p>
+<p>How does is final representation looks like?</p>
+<p><img alt="dino-representation" src="images/attention_maps.png"></p>
+<p>Training models without labels,
+for representation learning,
+evaluated on search task,
+and get very impressive results.
+These are the reasons I consider SSL could becomes a game changer.</p>
+<p>How? It might change the way we deploy ML solutions for varies downstream tasks,
+such as search task.
+Currently, when user has limited amount of training data,
+the best situation seems to be:
+Use pre-trained model, freeze most of the layers, apply transfer learning + metric learning for model finetunning.</p>
+<p>Suppose user provided large amount of messy training data without any labels,
+what can you do?
+The only possible way seems to be: combine <strong>Active Learning</strong> and <strong>Transfer Learning</strong>.
+User label the data interactively to provide labeled training samples.
+This could be useful, but lack of theoretical evaluations and practical support.</p>
+<p>One would argue, in most of my use cases,
+I always have labeled data.
+This could be a valid point in today's search industries.
+But to now, when applying deep learning on image retrieval,
+the market is super biased towards to fashion industry,
+and this industry, has a lot of labeled data already.</p>
+<p>While I believe, with time pass by,
+we'll soon see the shift of vector search from fashion, to more fields.
+Such as retail, tourism, real-estate, 3d meshes etc.
+Is our data/model ready for these industries already?
+The answer is clearly a no.</p>
+<p>Think from another point, what if, the self-supervised learning approaches,
+without any supervision, could bring on-par performance compared with supervised approaches?
+It's gonna an interesting case,
+then the only point for using metric-learning is because it's faster and consume less time/power.</p>
+<p>Stop from here.
+In the next blog, I'll write another one brings more code and quantitative evaluation.
+We'll get some better understanding of SSL vs Metric Learning by conducting some inspection on their failure cases.</p>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                            <li><a href="https://github.com/bwanglzu">Github</a></li>
+                            <li><a href="https://twitter.com/bo_wangbo">Twitter</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
