@@ -6,7 +6,6 @@
         <meta name="generator" content="Pelican" />
         <title>bo.blog - Bo Wang</title>
         <link rel="stylesheet" href="/theme/css/main.css" />
-        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="bo.blog Atom Feed" />
 </head>
 
 <body id="index" class="home">
@@ -19,173 +18,115 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/before-building-a-neural-search-application-build-your-mind-map-first.html">Before building a Neural Search Application, Build your Mind Map first</a></h1>
+                    <h1 class="entry-title"><a href="/our-journet-towards-build-model-finetuning-as-service-for-search.html">Our Journet Towards Build Model Finetuning as Service For Search</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2021-03-29T20:55:00+02:00">
-                Published: Mon 29 March 2021
+        <abbr class="published" title="2021-05-28T21:37:00+02:00">
+                Published: Fri 28 May 2021
         </abbr>
 
         <address class="vcard author">
                 By                         <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
         </address>
 <p>In <a href="/category/thoughts.html">thoughts</a>.</p>
-<p>tags: <a href="/tag/information-retrieval.html">information retrieval</a> </p>
-</footer><!-- /.post-info --><p>Recently when answering questions from <a href="https://github.com/jina-ai/jina">Jina</a> community users,
-I found a lot of developers want to build something fancy, for example:</p>
-<ol>
-<li>build a cross-modal search system, use text to search image without labeled data.</li>
-<li>build a cross-lingual search system, use Dutch to search products list in German markets.</li>
-<li>build a multi-modal search system, where query could be multi-modality, such as user <strong>Query</strong> contains a piece of text plus image and <strong>Documents</strong> are products which are semi-structured texts and images.</li>
-</ol>
-<p>While they're not sure about what they can do and what Jina can offer.
-As someone actively working for Jina and using Jina to build solutions,
-my first suggestion is:</p>
-<p><strong>Before building a Neural Search Application, Build your Mind Map first</strong>.</p>
-<p>In the programming/software engineering world,
-you might always been told to "get your hands dirty".
-This could be true in a lot of domains,
-but not for neural search.</p>
-<p>Building a traditional search system using Solr/Elasticsearch is intuitive:</p>
-<ol>
-<li>You know your input: text queries.</li>
-<li>You (don't have to)know what the "analyzers" will do: such as <em>tokenize</em>, <em>stemming</em>, <em>lemmatization</em>.</li>
-<li>You (don't have to)know what the "algorithm" will do: such as penalize the score of frequent tokens will assign higher scores to rare tokens.</li>
-<li>You 100% percent know that if there is a document <strong>match</strong> your <strong>Query</strong>, it will appear in your ranking list.</li>
-</ol>
-<p>Essentially, algorithms behind Solr/Elastic such as tf-idf, okapi bm25 are some form of advanced <strong>boolean retrieval</strong>.</p>
-<p>However, for neural search, it's another story.</p>
-<ol>
-<li>Your <strong>Query</strong> could be complicated: text, image, video, DNA sequence, or combination of different forms.</li>
-<li>Given the fact of the <strong>Query</strong> and <strong>Documents</strong> could be uni-modal, or multi-modal, we can hardly provide a standard set of <em>analyzers</em>, such as what <a href="https://lucene.apache.org/core/4_0_0/analyzers-common/org/apache/lucene/analysis/en/package-summary.html">Lucene can offer</a>.</li>
-<li>The deep learning model is picky. For instance, you have to carefully switch image <code>channel_axis</code> to match the library you're using. Or you have to carefully <code>collate</code> your tokens before feeding it into the model.</li>
-<li>The deep learning model is fragile. Pre-trained model could hardly bring quality results in your business domain.</li>
-<li>Similarity matching is time-consuming. Imaging compute cosine similarity using 1 <strong>Query</strong> against 1 million <strong>Documents</strong> (products) and keep in mind, your're building a search application. User expect to get the result in seconds.</li>
-</ol>
-<p>Then it becomes tricky to manage this level of complexity.</p>
-<p>How easy it is to delegate this complexity to Jina?
-Years ago I spend around 15 minutes to learn the syntax of Markdown, it is as easy as Markdown.</p>
-<p>Let's say, you want to build a search application (this is a real use-case) that:</p>
-<ol>
-<li>receive 3 categories of dataset: finance, HR and sales.</li>
-<li>process them separately.</li>
-<li>indexing them separately.</li>
-<li>search across three indices and aggregate best matches to the user.</li>
-</ol>
-<p>The <strong>Documents</strong> might look like this:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">DocumentArray</span>
-
-<span class="n">da</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span>
-<span class="n">da</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Document</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;this is a finance document&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">}))</span>
-<span class="n">da</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Document</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;this is a HR document&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;hr&#39;</span><span class="p">}))</span>
-<span class="n">da</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Document</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;this is a sales document&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">}))</span>
-<span class="c1"># ... you have much more</span>
-</code></pre></div>
-
-<h1>The naive approach</h1>
-<p>In the first iteration,
-I'll do it naively.
-I set up 3 <code>Flows</code>,
-<code>Flows</code> first filter the <code>Documents</code> based on their category,
-then employ a dedicated <code>Processor</code> to pre-processing the filtered data based on the <code>category</code>.
-Afterwards, use a common <code>Indexer</code>.
-The <code>Indexer</code> takes a <code>connection_str</code> as parameter to save embeddings to different vector databases.
-To this end, deploy 3 Flows as 3 K8s deployments,
-collect results from 3 micro-services and aggregate the final ranking results.</p>
-<p>Sounds not bad:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">jina</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">Executor</span>
-
-<span class="n">flow_finance</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">})</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">)</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-finance-db:port@user/password&#39;</span><span class="p">})</span>
-<span class="p">)</span>
-<span class="n">flow_hr</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;hr&#39;</span><span class="p">})</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">)</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-hr-db:port@user/password&#39;</span><span class="p">})</span>
-<span class="p">)</span>
-<span class="n">flow_sales</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">})</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">)</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-sales-db:port@user/password&#39;</span><span class="p">})</span>
-<span class="p">)</span>
-</code></pre></div>
-
-<p>if you call <code>flow_finance.plot()</code> you'll get:</p>
-<p><img alt="naive" src="images/naive.svg"></p>
-<p>You'll get the same thing when calling <code>flow_hr.plot()</code> or <code>flow_sales.plot()</code>, the only difference is the naming.
-Is it working? Yes! But not elegant.</p>
-<p>One important concept you can get from a <code>Flow</code> and you might miss is the idea of <code>pathway</code>. Let's do it better!</p>
-<h1>The Better Approach</h1>
-<p>A <code>pathway</code> is something not an official concept in Jina, but widely used to compose a multi-modal application.
-Imaging your are building a multi-modal search application with both Image and Text, then you can split your <code>Flow</code>
-into 2 <code>pathways</code>: one for Image and one for Text.
-It is the same idea here:</p>
-<p>We use the <code>Filter</code> 3 times  and allow dedicated <code>Processsors</code> follow the <code>pathway</code> of each <code>Filter</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">jina</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">Executor</span>
-
-<span class="n">flow</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">})</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gateway&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gateway&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_filter&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hr_data_filter&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-finance-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-hr-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-sales-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;gather_all&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">])</span>
-<span class="p">)</span>
-<span class="n">flow</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-</code></pre></div>
-
-<p>As you can see in the above code, rather than creating the <code>Flow</code> 3 times, we follow the idea if <code>pathway</code>.
-The key is the argument <code>needs</code>: it defines which <code>pathway</code> should I follow.
-For example: the <code>hr_data_processor</code> process filtered HR data, so <code>needs=['hr_data_filter']</code>.
-<code>needs</code> could be either a sinlge string, or a list of string.
-The last <code>gather_all</code> endpoints waits for all 3 <code>indexers</code> finish then produce the final ranking list.</p>
+<p>tags: <a href="/tag/representation-learning.html">representation learning</a> <a href="/tag/finetuner.html">finetuner</a> </p>
+</footer><!-- /.post-info --><h2>Background</h2>
+<p>Deep learning for Information Retrieval is non-trivial.
+Most of the people who have a background in Information Retrieval in industry lack of proper deep learning knowledge.
+On the other hand, people research deep learning care a lot about classification, segmentation rather than search.</p>
+<p>On the other hand, in the real-world,
+there is a urgent need for deep learning powered search.
+This is especially the case for Content-based Image Retrieval (CBIR, i.e. find similar images)
+or Multi/Cross-modal Information Retrieval, even Cross-lingual Information Retrieval.</p>
+<p>In practice, traditional search algorithms such as Okapi-Bm25 already did a good job in text-to-text search,
+incorporating dense vectors for search result re-ranking (2nd-stage ranking) has been proved to bring much better search quality.
+This blog explains how <a href="https://blog.google/products/search/search-language-understanding-bert/">Google brings Bert model into Google search</a>.</p>
+<p>For CBIR, the "old" ways is to enable bag of visual words and in the recent years,
+we use deep neural networks to extract visual representation and find similar images using similarity/distance metrics.</p>
+<p>Most of the web shops consider each item as a <strong>Product</strong> rather than a single image or a piece of text descriptor.
+In this case, combining image features and text features to leverage multi-modality representation becomes an essential topic.</p>
+<p>Besides these common use cases, cross-lingual retrieval over different marketplace,
+short-video retrieval, music retrieval forms several niche market.</p>
+<p>Each of these search applications, is powered by a research community.
+This research community train big models on a general task.
+But bring this model to your production environment could be painful:
+You'll soon realize leveraging pre-trained model produce trash search results.</p>
+<p>Why? In research people name it <strong>distribution shift</strong>.
+The model trained on the dataset, let's say <a href="https://www.image-net.org/">ImageNet</a>,
+contains millions of images of real-world objects,
+rather than the data within your niche market.
+So we need to fine-tune this model a bit to adopt the data distribution of your dataset.</p>
+<p>You might ask,
+okay, i know there are a bunch of frameworks/services already exist, and they can help me fine-tune a model,
+why you build Finetuner and turn it into a service?</p>
+<h2>What's the difference between Finetuner and other Libraries?</h2>
+<p>Once there was a Jina AI community member ask a question:</p>
 <blockquote>
-<p><strong><em>NOTE:</em></strong>  The default <code>needs</code> is always the previous Executor. The starting and ending point are always the <code>gateway</code>. </p>
+<p>What's the difference between Fientuner and Huggingface Transformers Trainer and other frameworks?</p>
 </blockquote>
-<p>The <code>flow</code> looks like this:</p>
-<p><img alt="better" src="images/better.svg"></p>
-<h1>The Fancy Approach</h1>
-<p>It is always interesting to explore the <a href="https://docs.jina.ai/">Jina documentation</a>.
-If you do so you might figure out something called <a href="https://docs.jina.ai/how-to/flow-switch/#how-to-build-switches-in-a-flow">Flow switches</a>.
-It allows you to <strong>conditionally filter data based on your needs</strong>.</p>
-<p>In our previous example, <code>finance_data_processor</code> works only if the <code>Document</code> category is <code>finance</code>,
-this also applies to <code>hr_data_filter</code> and <code>sales_data_filter</code>.
-Lucky, you can use the <code>when</code> semantic in the <code>Flow</code> to filter the data conditional:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">jina</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">Executor</span>
-
-<span class="n">flow</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tags__category&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$eq&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">}})</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tags__category&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$eq&#39;</span><span class="p">:</span> <span class="s1">&#39;hr&#39;</span><span class="p">}},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gateway&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tags__category&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$eq&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">}},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gateway&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-finance-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-hr-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-sales-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">])</span>
-          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;gather_all&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">])</span>
-<span class="p">)</span>
-<span class="n">flow</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-</code></pre></div>
-
-<p>Once we applied <code>when</code> argument here, the <code>Executor</code> will only applies if the condition is meet.
-For instance, <code>hr_data_processor</code> only works if the <code>category</code> of <code>Document.tags['category']==hr</code>.
-Think about how much this feature will bring you, imaging you only want to do some processing when some product price is greater than 500 euro,
-then you can simply apply this executor with <code>when={'tags__price': {'$gt': 500}}</code>.</p>
-<p><img alt="best" src="images/best.svg"></p>
-<h1>Final Words</h1>
-<p>Building a neural search application is not easy,
-but it brings a lot of values and open tremendous opportunities to your business.
-Before getting your hands dirty,
-I strongly suggest use your favourite tool to design your mind map,
-such as what is your system input, output, what are the necessary building blocks.</p>
-<p>In the above examples, you noticed i only defined the <code>Flow</code> , it's <code>Executors</code> and the relationship between <code>Flows</code>.
-Once you believe this is the best design, you could start to start the real coding. i.e. implement the code behind each <code>Executors</code>.</p>
-<p>Last but not least, I want to share a "mind map" I designed for a real-world user for multi-modal fashion product search.
-That's it for today.
-<img alt="real" src="images/realworld.svg"></p>                </article>
+<p>I believe the major difference is we a producing an <strong>embedding model</strong>.
+This is because for search tasks,
+the most important thing is the quality of <strong>embedding/vector/representation</strong>.</p>
+<p>For most of the frameworks, such as Huggingface transformers,
+fine-tuning means applies transfer learning with a new <strong>head</strong>.
+This <strong>head</strong> is, your task of interest.
+More specifically, if you take a pre-trained VisionTransformer on ImageNet,
+and want to fine-tune it for, let's say, cat-dog classification.
+You <strong>head</strong> will becomes a 2-class classification head, rather than 1000 class ImageNet head.</p>
+<p>Finetuner, however, <strong>respect your choice of model</strong>.
+It could be a vision model from <a href="https://github.com/rwightman/pytorch-image-models">timm</a>,
+<a href="https://github.com/pytorch/vision">torchvision</a>, or <a href="https://github.com/huggingface/transformers">transformers</a>.
+When receiving your model of choice, Finetuner will try to interpret your model architecture and "cut" your model <strong>head</strong>
+or applying pooling,
+then convert your model into an <strong>embedding model</strong>.
+This model, receiving an input, produce a feature vector to represent your data.
+Finetuner try to learn the <strong>data distribution</strong> of your data and improve the quality of the learned <strong>embedding/vector/representation</strong>.</p>
+<p>If you want to know more about how Fituner works in general,
+please refer to my previous <a href="metric-vs-ssl.md">blog</a>.</p>
+<h2>Why Finetuner becomes a service and How did we make the change?</h2>
+<p>Several important reasons,
+the most important one is,
+Finetuner-Service will become a stakeholder to power several Jina applications internally,
+such as DocsQA, Now, Clip-As-Service and some unannounced project.</p>
+<p>These applications do not have to care about the usage,
+Finetuner will hide the complexity of machine learning,
+and these applications deliver better search results to the user.</p>
+<p>However, we would also release the service externally to help Jina users improve their search quality.
+Our design objective is:</p>
+<ol>
+<li>We care about model performance, but we're not chasing SOTA. We try to find a balance point between performance and stability.</li>
+<li>User stay inside Jina ecosystem, <code>docarray</code> is the entrypoint for preparing training data.</li>
+<li>Minimum configuration required, while allow user to control their experiments.</li>
+</ol>
+<p>Previously, the Finetuner team within Jina is maintaining a single repo Finetuner.
+This OSS version will be abandoned,
+given a small team, in the past 3.5 months, this is what we have now:</p>
+<ol>
+<li>A much improved (close sourced) Finetuner-Core, with transformer support, CLIP support, much faster training on a single GPU or across multi-gpus, bug fixes and refactoring.</li>
+<li>A brand-new (close sourced) Finetuner-API, handles all cloud jobs, resource management, Finetune-job submission and deep integration with Jina's user system.</li>
+<li>A brand-new (open sourced) Finetuner-Client, allow user to create configurations and talk with Finetuner-API.</li>
+</ol>
+<p>In short, the heavy job has been delegrated to Finetuner-API and Finetuner-Core,
+and user only need to talk with Finetuner-Client.</p>
+<h2>How easy it is?</h2>
+<p>Please check the screenshot below:</p>
+<p><em>Note, it's not yet published to Pypi.</em></p>
+<p><img alt="client" src="images/finetuner.png"></p>
+<p>Not bad, right?
+Actually, user only need to provide a <code>model</code> name and <code>train_data</code>.</p>
+<p>Once you logged in,
+Finetuner will push your data to your own artifact storage (only visible to you),
+reserve cloud resources such as CPU/GPU/Memory, start the job and push fine-tuned model, again,
+to your artifact storage.
+Once training is over, you can call <code>save_model</code> to pull your model back to your machine.
+That's it!</p>
+<h2>How much performance Gain You Can Expect?</h2>
+<p>It depends on a lot of factors.
+Internally we have conducted a lot of experiments on varies tasks,
+such as image-to-image search, text-to-text search, cross-modal search.
+Across these three tasks, Finetuner is able to boost 20%-45% of precision@k and recall@k.
+You can also observe significant performance improvement on other metrics,
+such as mean recipal rank (mRR) or normalized discounted cumulative gain (nDCG).</p>
+<p>That's it for today, thanks for your time, and we expect you get your feedback.</p>                </article>
             </aside><!-- /#featured -->
                 <section id="content" class="body">
                     <h1>Other articles</h1>
@@ -227,7 +168,6 @@ That's it for today.
                 <div class="social">
                         <h2>social</h2>
                         <ul>
-                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
 
                             <li><a href="https://github.com/bwanglzu">Github</a></li>
                             <li><a href="https://twitter.com/bo_wangbo">Twitter</a></li>
