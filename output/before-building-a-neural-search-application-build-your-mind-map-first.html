@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="generator" content="Pelican" />
+        <title>Before building a Neural Search Application, Build your Mind Map first</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="bo.blog Atom Feed" />
+        <meta name="description" content="design first, implementation second" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">bo.blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/thoughts.html">thoughts</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/before-building-a-neural-search-application-build-your-mind-map-first.html" rel="bookmark"
+           title="Permalink to Before building a Neural Search Application, Build your Mind Map first">Before building a Neural Search Application, Build your Mind Map first</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-03-29T20:55:00+02:00">
+                Published: Mon 29 March 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
+        </address>
+<p>In <a href="/category/thoughts.html">thoughts</a>.</p>
+<p>tags: <a href="/tag/information-retrieval.html">information retrieval</a> </p>
+</footer><!-- /.post-info -->      <p>Recently when answering questions from <a href="https://github.com/jina-ai/jina">Jina</a> community users,
+I found a lot of developers want to build something fancy, for example:</p>
+<ol>
+<li>build a cross-modal search system, use text to search image without labeled data.</li>
+<li>build a cross-lingual search system, use Dutch to search products list in German markets.</li>
+<li>build a multi-modal search system, where query could be multi-modality, such as user <strong>Query</strong> contains a piece of text plus image and <strong>Documents</strong> are products which are semi-structured texts and images.</li>
+</ol>
+<p>While they're not sure about what they can do and what Jina can offer.
+As someone actively working for Jina and using Jina to build solutions,
+my first suggestion is:</p>
+<p><strong>Before building a Neural Search Application, Build your Mind Map first</strong>.</p>
+<p>In the programming/software engineering world,
+you might always been told to "get your hands dirty".
+This could be true in a lot of domains,
+but not for neural search.</p>
+<p>Building a traditional search system using Solr/Elasticsearch is intuitive:</p>
+<ol>
+<li>You know your input: text queries.</li>
+<li>You (don't have to)know what the "analyzers" will do: such as <em>tokenize</em>, <em>stemming</em>, <em>lemmatization</em>.</li>
+<li>You (don't have to)know what the "algorithm" will do: such as penalize the score of frequent tokens will assign higher scores to rare tokens.</li>
+<li>You 100% percent know that if there is a document <strong>match</strong> your <strong>Query</strong>, it will appear in your ranking list.</li>
+</ol>
+<p>Essentially, algorithms behind Solr/Elastic such as tf-idf, okapi bm25 are some form of advanced <strong>boolean retrieval</strong>.</p>
+<p>However, for neural search, it's another story.</p>
+<ol>
+<li>Your <strong>Query</strong> could be complicated: text, image, video, DNA sequence, or combination of different forms.</li>
+<li>Given the fact of the <strong>Query</strong> and <strong>Documents</strong> could be uni-modal, or multi-modal, we can hardly provide a standard set of <em>analyzers</em>, such as what <a href="https://lucene.apache.org/core/4_0_0/analyzers-common/org/apache/lucene/analysis/en/package-summary.html">Lucene can offer</a>.</li>
+<li>The deep learning model is picky. For instance, you have to carefully switch image <code>channel_axis</code> to match the library you're using. Or you have to carefully <code>collate</code> your tokens before feeding it into the model.</li>
+<li>The deep learning model is fragile. Pre-trained model could hardly bring quality results in your business domain.</li>
+<li>Similarity matching is time-consuming. Imaging compute cosine similarity using 1 <strong>Query</strong> against 1 million <strong>Documents</strong> (products) and keep in mind, your're building a search application. User expect to get the result in seconds.</li>
+</ol>
+<p>Then it becomes tricky to manage this level of complexity.</p>
+<p>How easy it is to delegate this complexity to Jina?
+Years ago I spend around 15 minutes to learn the syntax of Markdown, it is as easy as Markdown.</p>
+<p>Let's say, you want to build a search application (this is a real use-case) that:</p>
+<ol>
+<li>receive 3 categories of dataset: finance, HR and sales.</li>
+<li>process them separately.</li>
+<li>indexing them separately.</li>
+<li>search across three indices and aggregate best matches to the user.</li>
+</ol>
+<p>The <strong>Documents</strong> might look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">DocumentArray</span>
+
+<span class="n">da</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span>
+<span class="n">da</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Document</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;this is a finance document&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">}))</span>
+<span class="n">da</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Document</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;this is a HR document&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;hr&#39;</span><span class="p">}))</span>
+<span class="n">da</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Document</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">&#39;this is a sales document&#39;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">}))</span>
+<span class="c1"># ... you have much more</span>
+</code></pre></div>
+
+<h1>The naive approach</h1>
+<p>In the first iteration,
+I'll do it naively.
+I set up 3 <code>Flows</code>,
+<code>Flows</code> first filter the <code>Documents</code> based on their category,
+then employ a dedicated <code>Processor</code> to pre-processing the filtered data based on the <code>category</code>.
+Afterwards, use a common <code>Indexer</code>.
+The <code>Indexer</code> takes a <code>connection_str</code> as parameter to save embeddings to different vector databases.
+To this end, deploy 3 Flows as 3 K8s deployments,
+collect results from 3 micro-services and aggregate the final ranking results.</p>
+<p>Sounds not bad:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">jina</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">Executor</span>
+
+<span class="n">flow_finance</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">})</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-finance-db:port@user/password&#39;</span><span class="p">})</span>
+<span class="p">)</span>
+<span class="n">flow_hr</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;hr&#39;</span><span class="p">})</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-hr-db:port@user/password&#39;</span><span class="p">})</span>
+<span class="p">)</span>
+<span class="n">flow_sales</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">})</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-sales-db:port@user/password&#39;</span><span class="p">})</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>if you call <code>flow_finance.plot()</code> you'll get:</p>
+<p><img alt="naive" src="images/naive.svg"></p>
+<p>You'll get the same thing when calling <code>flow_hr.plot()</code> or <code>flow_sales.plot()</code>, the only difference is the naming.
+Is it working? Yes! But not elegant.</p>
+<p>One important concept you can get from a <code>Flow</code> and you might miss is the idea of <code>pathway</code>. Let's do it better!</p>
+<h1>The Better Approach</h1>
+<p>A <code>pathway</code> is something not an official concept in Jina, but widely used to compose a multi-modal application.
+Imaging your are building a multi-modal search application with both Image and Text, then you can split your <code>Flow</code>
+into 2 <code>pathways</code>: one for Image and one for Text.
+It is the same idea here:</p>
+<p>We use the <code>Filter</code> 3 times  and allow dedicated <code>Processsors</code> follow the <code>pathway</code> of each <code>Filter</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">jina</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">Executor</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">})</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gateway&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_filter&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;category&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gateway&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_filter&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hr_data_filter&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-finance-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-hr-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-sales-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;gather_all&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">])</span>
+<span class="p">)</span>
+<span class="n">flow</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</code></pre></div>
+
+<p>As you can see in the above code, rather than creating the <code>Flow</code> 3 times, we follow the idea if <code>pathway</code>.
+The key is the argument <code>needs</code>: it defines which <code>pathway</code> should I follow.
+For example: the <code>hr_data_processor</code> process filtered HR data, so <code>needs=['hr_data_filter']</code>.
+<code>needs</code> could be either a sinlge string, or a list of string.
+The last <code>gather_all</code> endpoints waits for all 3 <code>indexers</code> finish then produce the final ranking list.</p>
+<blockquote>
+<p><strong><em>NOTE:</em></strong>  The default <code>needs</code> is always the previous Executor. The starting and ending point are always the <code>gateway</code>. </p>
+</blockquote>
+<p>The <code>flow</code> looks like this:</p>
+<p><img alt="better" src="images/better.svg"></p>
+<h1>The Fancy Approach</h1>
+<p>It is always interesting to explore the <a href="https://docs.jina.ai/">Jina documentation</a>.
+If you do so you might figure out something called <a href="https://docs.jina.ai/how-to/flow-switch/#how-to-build-switches-in-a-flow">Flow switches</a>.
+It allows you to <strong>conditionally filter data based on your needs</strong>.</p>
+<p>In our previous example, <code>finance_data_processor</code> works only if the <code>Document</code> category is <code>finance</code>,
+this also applies to <code>hr_data_filter</code> and <code>sales_data_filter</code>.
+Lucky, you can use the <code>when</code> semantic in the <code>Flow</code> to filter the data conditional:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">jina</span> <span class="kn">import</span> <span class="n">Flow</span><span class="p">,</span> <span class="n">Executor</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Flow</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tags__category&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$eq&#39;</span><span class="p">:</span> <span class="s1">&#39;finance&#39;</span><span class="p">}})</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tags__category&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$eq&#39;</span><span class="p">:</span> <span class="s1">&#39;hr&#39;</span><span class="p">}},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gateway&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;tags__category&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;$eq&#39;</span><span class="p">:</span> <span class="s1">&#39;sales&#39;</span><span class="p">}},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gateway&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-finance-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_processor&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-hr-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;hr_data_processor&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">,</span> <span class="n">uses_with</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;connection_str&#39;</span><span class="p">:</span> <span class="s1">&#39;my-host-to-sales-db:port@user/password&#39;</span><span class="p">},</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sales_data_processor&#39;</span><span class="p">])</span>
+          <span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;gather_all&#39;</span><span class="p">,</span> <span class="n">needs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;finance_data_indexer&#39;</span><span class="p">,</span> <span class="s1">&#39;hr_data_indexer&#39;</span><span class="p">,</span> <span class="s1">&#39;sales_data_indexer&#39;</span><span class="p">])</span>
+<span class="p">)</span>
+<span class="n">flow</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</code></pre></div>
+
+<p>Once we applied <code>when</code> argument here, the <code>Executor</code> will only applies if the condition is meet.
+For instance, <code>hr_data_processor</code> only works if the <code>category</code> of <code>Document.tags['category']==hr</code>.
+Think about how much this feature will bring you, imaging you only want to do some processing when some product price is greater than 500 euro,
+then you can simply apply this executor with <code>when={'tags__price': {'$gt': 500}}</code>.</p>
+<p><img alt="best" src="images/best.svg"></p>
+<h1>Final Words</h1>
+<p>Building a neural search application is not easy,
+but it brings a lot of values and open tremendous opportunities to your business.
+Before getting your hands dirty,
+I strongly suggest use your favourite tool to design your mind map,
+such as what is your system input, output, what are the necessary building blocks.</p>
+<p>In the above examples, you noticed i only defined the <code>Flow</code> , it's <code>Executors</code> and the relationship between <code>Flows</code>.
+Once you believe this is the best design, you could start to start the real coding. i.e. implement the code behind each <code>Executors</code>.</p>
+<p>Last but not least, I want to share a "mind map" I designed for a real-world user for multi-modal fashion product search.
+That's it for today.
+<img alt="real" src="images/realworld.svg"></p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                            <li><a href="https://github.com/bwanglzu">Github</a></li>
+                            <li><a href="https://twitter.com/bo_wangbo">Twitter</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
