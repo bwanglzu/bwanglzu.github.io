@@ -1,41 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="generator" content="Pelican" />
-        <title>Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</title>
-        <link rel="stylesheet" href="/theme/css/main.css" />
-        <meta name="description" content="This is the first article I published on this topic. Which generally lay the foundation of the question." />
-</head>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>bo.blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/theme/styles.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/theme/slicknav.css">
+    <script src="/theme/jquery.slicknav.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="text/javascript"
+	    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js"></script>
+    <![endif]-->
+<script>
+	$(function(){
+		$('#menu').slicknav({'label':''});
+	});
+</script>
+<link rel="icon" href="/theme/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
+<link rel="apple-touch-icon" sizes="114x114" href="/theme/apple-touch-icon-precomposed.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/theme/favicon152.png">
+<link rel="apple-touch-icon" sizes="196x196" href="/theme/favicon196.png">
+  </head>
 
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="/">bo.blog</a></h1>
-                <nav><ul>
-                    <li class="active"><a href="/category/thoughts.html">thoughts</a></li>
-                </ul></nav>
-        </header><!-- /#banner -->
-<section id="content" class="body">
-  <article>
-    <header>
-      <h1 class="entry-title">
-        <a href="/metric-learning-vs-self-supervised-learning-which-produce-better-embeddings-for-instance-retrieval.html" rel="bookmark"
-           title="Permalink to Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?">Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</a></h1>
-    </header>
+  <body>
+    <div id="wrapper">
 
-    <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2021-03-20T22:17:00+01:00">
-                Published: Sat 20 March 2021
-        </abbr>
+      <header>
+	<nav class="byline"><ul id="menu">
+        </ul></nav><!-- /#menu -->
+        <div class="downloads">
+          <a href="https://github.com/bwanglzu" class="fa fa-Github"></a>
+          <a href="https://twitter.com/bo_wangbo" class="fa fa-Twitter"></a>
+        </div>
+        <hgroup>
+          <h1>Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</h1>
+  <footer class="article-footer">
+    <address class="vcard author">
+      By           <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
+    </address>
+    <abbr class="published" title="2021-03-20T22:17:00+01:00">
+       on 20.03.2021
+    </abbr>
+  </footer><!-- /.post-info -->
+        </hgroup>
+  
 
-        <address class="vcard author">
-                By                         <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
-        </address>
-<p>In <a href="/category/thoughts.html">thoughts</a>.</p>
-<p>tags: <a href="/tag/representation-learning.html">representation learning</a> <a href="/tag/instance-retrieval.html">instance retrieval</a> <a href="/tag/image-retrieval.html">image retrieval</a> <a href="/tag/metric-learning.html">metric learning</a> </p>
-</footer><!-- /.post-info -->      <p>Instance-level image retrieval is an important component of image retrieval tasks.
+
+    <meta name="tags" contents="representation learning" />
+    <meta name="tags" contents="instance retrieval" />
+    <meta name="tags" contents="image retrieval" />
+    <meta name="tags" contents="metric learning" />
+
+      </header>
+<section id="content" class="body article">
+  <div class="entry-content">
+    <p>Instance-level image retrieval is an important component of image retrieval tasks.
 Given an image as <em>Query</em>,
 an instance retrieval system aims at find the same objects <em>D</em> with respect to <em>Q</em>.
 For instance, given an image of the Great Wall, instance retrieval should be able to find other Great Wall images,
@@ -215,36 +239,28 @@ then the only point for using metric-learning is because it's faster and consume
 <p>Stop from here.
 In the next blog, I'll write another one brings more code and quantitative evaluation.
 We'll get some better understanding of SSL vs Metric Learning by conducting some inspection on their failure cases.</p>
-    </div><!-- /.entry-content -->
-
-  </article>
+  </div><!-- /.entry-content -->
+  <div class="article-share-tags">
+  <div class="end-article-tags">
+      <i class="fa fa-tags"></i>
+      <a href="/tag/representation-learning.html">representation learning</a>
+      <a href="/tag/instance-retrieval.html">instance retrieval</a>
+      <a href="/tag/image-retrieval.html">image retrieval</a>
+      <a href="/tag/metric-learning.html">metric learning</a>
+  </div>
+  <div class='article-share'>
+      share -
+  </div>
+  </div>
 </section>
-        <section id="extras" class="body">
-                <div class="blogroll">
-                        <h2>links</h2>
-                        <ul>
-                            <li><a href="https://getpelican.com/">Pelican</a></li>
-                            <li><a href="https://www.python.org/">Python.org</a></li>
-                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
-                        </ul>
-                </div><!-- /.blogroll -->
-                <div class="social">
-                        <h2>social</h2>
-                        <ul>
-
-                            <li><a href="https://github.com/bwanglzu">Github</a></li>
-                            <li><a href="https://twitter.com/bo_wangbo">Twitter</a></li>
-                        </ul>
-                </div><!-- /.social -->
-        </section><!-- /#extras -->
-
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
-                </address><!-- /#about -->
-
-                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-        </footer><!-- /#contentinfo -->
-
+<div class="neighbors">
+</div>
+      <footer>
+	  <a href="/pages/about.html" >About</a>
+	  <div class="right-footer">
+	  <a href="/categories.html" >Categories</a>
+	  <a href="/tags.html" >Tags</a>
+	  </div>
+      </footer>
 </body>
 </html>

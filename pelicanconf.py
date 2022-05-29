@@ -26,7 +26,7 @@ SOCIAL = (('Github', 'https://github.com/bwanglzu'),
 
 DEFAULT_PAGINATION = False
 
-# THEME = "/Users/bo/pelican-themes/notmyidea"
+THEME = "/Users/bo/Documents/work2/bwanglzu.github.io/venv/lib/python3.9/site-packages/pelican/themes/martin-pelican"
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True

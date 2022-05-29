@@ -1,187 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="generator" content="Pelican" />
-        <title>bo.blog</title>
-        <link rel="stylesheet" href="/theme/css/main.css" />
-</head>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>bo.blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/theme/styles.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/theme/slicknav.css">
+    <script src="/theme/jquery.slicknav.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <script type="text/javascript"
+	    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js"></script>
+    <![endif]-->
+<script>
+	$(function(){
+		$('#menu').slicknav({'label':''});
+	});
+</script>
+<link rel="icon" href="/theme/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
+<link rel="apple-touch-icon" sizes="114x114" href="/theme/apple-touch-icon-precomposed.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/theme/favicon152.png">
+<link rel="apple-touch-icon" sizes="196x196" href="/theme/favicon196.png">
+  </head>
 
-<body id="index" class="home">
-        <header id="banner" class="body">
-                <h1><a href="/">bo.blog</a></h1>
-                <nav><ul>
-                    <li><a href="/category/thoughts.html">thoughts</a></li>
-                </ul></nav>
-        </header><!-- /#banner -->
+  <body>
+    <div id="wrapper">
 
-            <aside id="featured" class="body">
-                <article>
-                    <h1 class="entry-title"><a href="/our-journey-towards-build-model-finetuning-as-service-for-search.html">Our Journey Towards Build Model Finetuning as Service For Search</a></h1>
-<footer class="post-info">
-        <abbr class="published" title="2021-05-28T21:37:00+02:00">
-                Published: Fri 28 May 2021
-        </abbr>
-
-        <address class="vcard author">
-                By                         <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
-        </address>
-<p>In <a href="/category/thoughts.html">thoughts</a>.</p>
-<p>tags: <a href="/tag/representation-learning.html">representation learning</a> <a href="/tag/finetuner.html">finetuner</a> </p>
-</footer><!-- /.post-info --><h2>Background</h2>
-<p>Deep learning for Information Retrieval is non-trivial.
-Most of the people who have a background in Information Retrieval in industry lack of proper deep learning knowledge.
-On the other hand, people research deep learning care a lot about classification, segmentation rather than search.</p>
-<p>On the other hand, in the real-world,
-there is a urgent need for deep learning powered search.
-This is especially the case for Content-based Image Retrieval (CBIR, i.e. find similar images)
-or Multi/Cross-modal Information Retrieval, even Cross-lingual Information Retrieval.</p>
-<p>In practice, traditional search algorithms such as Okapi-Bm25 already did a good job in text-to-text search,
-incorporating dense vectors for search result re-ranking (2nd-stage ranking) has been proved to bring much better search quality.
-This blog explains how <a href="https://blog.google/products/search/search-language-understanding-bert/">Google brings Bert model into Google search</a>.</p>
-<p>For CBIR, the "old" ways is to enable bag of visual words and in the recent years,
-we use deep neural networks to extract visual representation and find similar images using similarity/distance metrics.</p>
-<p>Most of the web shops consider each item as a <strong>Product</strong> rather than a single image or a piece of text descriptor.
-In this case, combining image features and text features to leverage multi-modality representation becomes an essential topic.</p>
-<p>Besides these common use cases, cross-lingual retrieval over different marketplace,
-short-video retrieval, music retrieval forms several niche market.</p>
-<p>Each of these search applications, is powered by a research community.
-This research community train big models on a general task.
-But bring this model to your production environment could be painful:
-You'll soon realize leveraging pre-trained model produce trash search results.</p>
-<p>Why? In research people name it <strong>distribution shift</strong>.
-The model trained on the dataset, let's say <a href="https://www.image-net.org/">ImageNet</a>,
-contains millions of images of real-world objects,
-rather than the data within your niche market.
-So we need to fine-tune this model a bit to adopt the data distribution of your dataset.</p>
-<p>You might ask,
-okay, i know there are a bunch of frameworks/services already exist, and they can help me fine-tune a model,
-why you build Finetuner and turn it into a service?</p>
-<h2>What's the difference between Finetuner and other Libraries?</h2>
-<p>Once there was a Jina AI community member ask a question:</p>
-<blockquote>
-<p>What's the difference between Fientuner and Huggingface Transformers Trainer and other frameworks?</p>
-</blockquote>
-<p>I believe the major difference is we a producing an <strong>embedding model</strong>.
-This is because for search tasks,
-the most important thing is the quality of <strong>embedding/vector/representation</strong>.</p>
-<p>For most of the frameworks, such as Huggingface transformers,
-fine-tuning means applies transfer learning with a new <strong>head</strong>.
-This <strong>head</strong> is, your task of interest.
-More specifically, if you take a pre-trained VisionTransformer on ImageNet,
-and want to fine-tune it for, let's say, cat-dog classification.
-You <strong>head</strong> will becomes a 2-class classification head, rather than 1000 class ImageNet head.</p>
-<p>Finetuner, however, <strong>respect your choice of model</strong>.
-It could be a vision model from <a href="https://github.com/rwightman/pytorch-image-models">timm</a>,
-<a href="https://github.com/pytorch/vision">torchvision</a>, or <a href="https://github.com/huggingface/transformers">transformers</a>.
-When receiving your model of choice, Finetuner will try to interpret your model architecture and "cut" your model <strong>head</strong>
-or applying pooling,
-then convert your model into an <strong>embedding model</strong>.
-This model, receiving an input, produce a feature vector to represent your data.
-Finetuner try to learn the <strong>data distribution</strong> of your data and improve the quality of the learned <strong>embedding/vector/representation</strong>.</p>
-<p>If you want to know more about how Fituner works in general,
-please refer to my previous <a href="metric-vs-ssl.md">blog</a>.</p>
-<h2>Why Finetuner becomes a service and How did we make the change?</h2>
-<p>Several important reasons,
-the most important one is,
-Finetuner-Service will become a stakeholder to power several Jina applications internally,
-such as DocsQA, Now, Clip-As-Service and some unannounced project.</p>
-<p>These applications do not have to care about the usage,
-Finetuner will hide the complexity of machine learning,
-and these applications deliver better search results to the user.</p>
-<p>However, we would also release the service externally to help Jina users improve their search quality.
-Our design objective is:</p>
-<ol>
-<li>We care about model performance, but we're not chasing SOTA. We try to find a balance point between performance and stability.</li>
-<li>User stay inside Jina ecosystem, <code>docarray</code> is the entrypoint for preparing training data.</li>
-<li>Minimum configuration required, while allow user to control their experiments.</li>
-</ol>
-<p>Previously, the Finetuner team within Jina is maintaining a single repo Finetuner.
-This OSS version will be abandoned,
-given a small team, in the past 3.5 months, this is what we have now:</p>
-<ol>
-<li>A much improved (close sourced) Finetuner-Core, with transformer support, CLIP support, much faster training on a single GPU or across multi-gpus, bug fixes and refactoring.</li>
-<li>A brand-new (close sourced) Finetuner-API, handles all cloud jobs, resource management, Finetune-job submission and deep integration with Jina's user system.</li>
-<li>A brand-new (open sourced) Finetuner-Client, allow user to create configurations and talk with Finetuner-API.</li>
-</ol>
-<p>In short, the heavy job has been delegrated to Finetuner-API and Finetuner-Core,
-and user only need to talk with Finetuner-Client.</p>
-<h2>How easy it is?</h2>
-<p>Please check the screenshot below:</p>
-<p><em>Note, it's not yet published to Pypi.</em></p>
-<p><img alt="client" src="images/finetuner.png"></p>
-<p>Not bad, right?
-Actually, user only need to provide a <code>model</code> name and <code>train_data</code>.</p>
-<p>Once you logged in,
-Finetuner will push your data to your own artifact storage (only visible to you),
-reserve cloud resources such as CPU/GPU/Memory, start the job and push fine-tuned model, again,
-to your artifact storage.
-Once training is over, you can call <code>save_model</code> to pull your model back to your machine.
-That's it!</p>
-<h2>How much performance Gain You Can Expect?</h2>
-<p>It depends on a lot of factors.
-Internally we have conducted a lot of experiments on varies tasks,
-such as image-to-image search, text-to-text search, cross-modal search.
-Across these three tasks, Finetuner is able to boost 20%-45% of precision@k and recall@k.
-You can also observe significant performance improvement on other metrics,
-such as mean recipal rank (mRR) or normalized discounted cumulative gain (nDCG).</p>
-<p>That's it for today, thanks for your time, and we expect you get your feedback.</p>                </article>
-            </aside><!-- /#featured -->
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
-
-            <li><article class="hentry">
-                <header>
-                    <h1><a href="/metric-learning-vs-self-supervised-learning-which-produce-better-embeddings-for-instance-retrieval.html" rel="bookmark"
-                           title="Permalink to Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?">Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</a></h1>
-                </header>
-
-                <div class="entry-content">
-<footer class="post-info">
-        <abbr class="published" title="2021-03-20T22:17:00+01:00">
-                Published: Sat 20 March 2021
-        </abbr>
-
-        <address class="vcard author">
-                By                         <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
-        </address>
-<p>In <a href="/category/thoughts.html">thoughts</a>.</p>
-<p>tags: <a href="/tag/representation-learning.html">representation learning</a> <a href="/tag/instance-retrieval.html">instance retrieval</a> <a href="/tag/image-retrieval.html">image retrieval</a> <a href="/tag/metric-learning.html">metric learning</a> </p>
-</footer><!-- /.post-info -->                <p>This is the first article I published on this topic. Which generally lay the foundation of the question.</p>
-                <a class="readmore" href="/metric-learning-vs-self-supervised-learning-which-produce-better-embeddings-for-instance-retrieval.html">read more</a>
-                </div><!-- /.entry-content -->
-            </article></li>
-                </ol><!-- /#posts-list -->
-                </section><!-- /#content -->
-        <section id="extras" class="body">
-                <div class="blogroll">
-                        <h2>links</h2>
-                        <ul>
-                            <li><a href="https://getpelican.com/">Pelican</a></li>
-                            <li><a href="https://www.python.org/">Python.org</a></li>
-                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
-                        </ul>
-                </div><!-- /.blogroll -->
-                <div class="social">
-                        <h2>social</h2>
-                        <ul>
-
-                            <li><a href="https://github.com/bwanglzu">Github</a></li>
-                            <li><a href="https://twitter.com/bo_wangbo">Twitter</a></li>
-                        </ul>
-                </div><!-- /.social -->
-        </section><!-- /#extras -->
-
-        <footer id="contentinfo" class="body">
-                <address id="about" class="vcard body">
-                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
-                </address><!-- /#about -->
-
-                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
-        </footer><!-- /#contentinfo -->
-
+      <header>
+	<nav class="byline"><ul id="menu">
+        </ul></nav><!-- /#menu -->
+        <div class="downloads">
+          <a href="https://github.com/bwanglzu" class="fa fa-Github"></a>
+          <a href="https://twitter.com/bo_wangbo" class="fa fa-Twitter"></a>
+        </div>
+        <hgroup>
+          <h1>bo.blog</h1>
+          <h2 class="tagline"></h2>
+        </hgroup>
+      </header>
+<section id="content">
+<ul id="post-list">
+        <li><article class="hentry">
+            <header class="article-list"> <h2 class="entry-title"><a href="/our-journey-towards-build-model-finetuning-as-service-for-search.html" rel="bookmark" title="link to Our Journey Towards Build Model Finetuning as Service For Search">Our Journey Towards Build Model Finetuning as Service For Search</a></h2>
+                <footer class="post-info">
+                    <address class="vcard author">By
+                        <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
+                    </address>
+                    <abbr class="published" title="2021-05-28T21:37:00+02:00">  on 28.05.2021 </abbr>
+                </footer><!-- /.post-info -->
+	    </header>
+                <div class="entry-content"> <p>Model finetuning as a service.</p> </div><!-- /.entry-content -->
+        </article></li>
+        <li><article class="hentry">
+            <header class="article-list"> <h2 class="entry-title"><a href="/metric-learning-vs-self-supervised-learning-which-produce-better-embeddings-for-instance-retrieval.html" rel="bookmark" title="link to Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?">Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</a></h2>
+                <footer class="post-info">
+                    <address class="vcard author">By
+                        <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
+                    </address>
+                    <abbr class="published" title="2021-03-20T22:17:00+01:00">  on 20.03.2021 </abbr>
+                </footer><!-- /.post-info -->
+	    </header>
+                <div class="entry-content"> <p>This is the first article I published on this topic. Which generally lay the foundation of the question.</p> </div><!-- /.entry-content -->
+        </article></li>
+</ul><!-- /#posts-list -->
+</section><!-- /#content -->
+      <footer>
+	  <a href="/pages/about.html" >About</a>
+	  <div class="right-footer">
+	  <a href="/categories.html" >Categories</a>
+	  <a href="/tags.html" >Tags</a>
+	  </div>
+      </footer>
 </body>
 </html>
