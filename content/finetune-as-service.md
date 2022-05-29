@@ -129,7 +129,7 @@ Across these three tasks, Finetuner is able to boost 20%-45% of precision@k and 
 You can also observe significant performance improvement on other metrics,
 such as mean recipal rank (mRR) or normalized discounted cumulative gain (nDCG).
 
-That's it for today, thanks for your time, and we expect you get your feedback.
+That's it for today, thanks for your time, we'll soon release the latest finetuner, stay tuned.
 
 
 
