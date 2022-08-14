@@ -28,5 +28,8 @@ DEFAULT_PAGINATION = False
 
 THEME = "/Users/bo/Documents/work2/bwanglzu.github.io/venv/lib/python3.9/site-packages/pelican/themes/martin-pelican"
 
+PLUGIN_PATHS=['./plugins']
+PLUGINS = ['render_math']
+
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True

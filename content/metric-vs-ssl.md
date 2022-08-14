@@ -1,5 +1,5 @@
 Title: Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?
-Date: 2021-03-20 22:17
+Date: 2022-03-20 22:17
 Tags: representation learning, instance retrieval, image retrieval, metric learning
 Category: thoughts
 Authors: Bo Wang

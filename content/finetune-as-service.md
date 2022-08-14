@@ -1,5 +1,5 @@
 Title: Our Journey Towards Build Model Finetuning as Service For Search
-Date: 2021-05-28 21:37
+Date: 2022-05-28 21:37
 Tags: representation learning, finetuner
 Category: thoughts
 Authors: Bo Wang
