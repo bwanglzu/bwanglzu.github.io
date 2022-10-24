@@ -26,7 +26,7 @@ SOCIAL = (('Github', 'https://github.com/bwanglzu'),
 
 DEFAULT_PAGINATION = False
 
-THEME = "/Users/bo/Documents/work2/bwanglzu.github.io/venv/lib/python3.9/site-packages/pelican/themes/martin-pelican"
+THEME = "/Users/bo/pelican-themes/lightweight"
 
 PLUGIN_PATHS=['./plugins']
 PLUGINS = ['render_math']

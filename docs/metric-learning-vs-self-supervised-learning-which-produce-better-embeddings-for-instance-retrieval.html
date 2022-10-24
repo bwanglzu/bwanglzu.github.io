@@ -1,65 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>bo.blog</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/theme/styles.css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="/theme/slicknav.css">
-    <script src="/theme/jquery.slicknav.min.js"></script>
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-    <script type="text/javascript"
-	    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
-    <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.6.2/html5shiv.js"></script>
-    <![endif]-->
-<script>
-	$(function(){
-		$('#menu').slicknav({'label':''});
-	});
-</script>
-<link rel="icon" href="/theme/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
-<link rel="apple-touch-icon" sizes="114x114" href="/theme/apple-touch-icon-precomposed.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/theme/favicon152.png">
-<link rel="apple-touch-icon" sizes="196x196" href="/theme/favicon196.png">
-  </head>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>bo.blog - Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" href="/theme/css/main.css" type="text/css" />
+  <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="bo.blog - Flux ATOM" />
+</head>
+<body>
+<div id="page">
 
-  <body>
-    <div id="wrapper">
+  <header id="header">
+    <h1><a href="/index.html">bo.blog</a></h1>
+  </header>
 
-      <header>
-	<nav class="byline"><ul id="menu">
-        </ul></nav><!-- /#menu -->
-        <div class="downloads">
-          <a href="https://github.com/bwanglzu" class="fa fa-Github"></a>
-          <a href="https://twitter.com/bo_wangbo" class="fa fa-Twitter"></a>
-        </div>
-        <hgroup>
-          <h1>Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</h1>
-  <footer class="article-footer">
-    <address class="vcard author">
-      By           <a class="url fn" href="/author/bo-wang.html">Bo Wang</a>
-    </address>
-    <abbr class="published" title="2022-03-20T22:17:00+01:00">
-       on 20.03.2022
-    </abbr>
-  </footer><!-- /.post-info -->
-        </hgroup>
-  
+<nav id="menu">
+  <a href="/index.html">Accueil</a>
+  <a href="/archives.html">Archives</a>
 
+</nav> <!-- /#nav -->
+  <section id="content">
+        
+  <article class="post">
+        <h2 class="page_title"><a href="metric-learning-vs-self-supervised-learning-which-produce-better-embeddings-for-instance-retrieval.html" rel="bookmark" title="bo.blog - Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?">Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</a></h2>
 
-    <meta name="tags" contents="representation learning" />
-    <meta name="tags" contents="instance retrieval" />
-    <meta name="tags" contents="image retrieval" />
-    <meta name="tags" contents="metric learning" />
-
-      </header>
-<section id="content" class="body article">
-  <div class="entry-content">
-    <p>Instance-level image retrieval is an important component of image retrieval tasks.
+        <section class="post_content">
+        <p>Instance-level image retrieval is an important component of image retrieval tasks.
 Given an image as <em>Query</em>,
 an instance retrieval system aims at find the same objects <em>D</em> with respect to <em>Q</em>.
 For instance, given an image of the Great Wall, instance retrieval should be able to find other Great Wall images,
@@ -239,28 +205,59 @@ then the only point for using metric-learning is because it's faster and consume
 <p>Stop from here.
 In the next blog, I'll write another one brings more code and quantitative evaluation.
 We'll get some better understanding of SSL vs Metric Learning by conducting some inspection on their failure cases.</p>
-  </div><!-- /.entry-content -->
-  <div class="article-share-tags">
-  <div class="end-article-tags">
-      <i class="fa fa-tags"></i>
-      <a href="/tag/representation-learning.html">representation learning</a>
-      <a href="/tag/instance-retrieval.html">instance retrieval</a>
-      <a href="/tag/image-retrieval.html">image retrieval</a>
-      <a href="/tag/metric-learning.html">metric learning</a>
+        </section>
+
+        <details class="meta">
+          Publié le <time datetime="2022-03-20T22:17:00+01:00" pubdate="pubdate">Sun 20 March 2022</time>
+ par Bo Wang dans «<a href="/category/thoughts.html">thoughts</a>».  
+Mots-clés: <a href="/tag/representation-learning.html">representation learning</a>, <a href="/tag/instance-retrieval.html">instance retrieval</a>, <a href="/tag/image-retrieval.html">image retrieval</a>, <a href="/tag/metric-learning.html">metric learning</a></p>        </details>   </article>
+
+
+  </section> <!-- /#content -->
+
+<aside id="sidebar">
+
+  <div class="widget" id="categories">
+    <h2>Catégories</h2>
+    <ul>
+      <li ><a href="/category/knowledge.html">knowledge</a></li>
+      <li class="active"><a href="/category/thoughts.html">thoughts</a></li>
+    </ul>
   </div>
-  <div class='article-share'>
-      share -
+
+  <div class="widget" id="tags">
+    <h2>Mots-clés:</h2>
+    <ul>
+      <li><a href="/tag/representation-learning.html">representation learning</a></li>
+      <li><a href="/tag/instance-retrieval.html">instance retrieval</a></li>
+      <li><a href="/tag/image-retrieval.html">image retrieval</a></li>
+      <li><a href="/tag/metric-learning.html">metric learning</a></li>
+      <li><a class="more" href="/tags.html">Plus...</a></li>
+    </ul>
   </div>
+  
+  <div class="widget" id="blogroll">
+    <h2>Liens</h2>
+    <ul>
+      <li><a href="https://getpelican.com/">Pelican</a></li>
+      <li><a href="https://www.python.org/">Python.org</a></li>
+      <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+    </ul>
   </div>
-</section>
-<div class="neighbors">
-</div>
-      <footer>
-	  <a href="/pages/about.html" >About</a>
-	  <div class="right-footer">
-	  <a href="/categories.html" >Categories</a>
-	  <a href="/tags.html" >Tags</a>
-	  </div>
-      </footer>
+
+    <div class="widget" id="social">
+      <h2>Réseaux sociaux</h2>
+      <ul>
+        <li><a href="https://github.com/bwanglzu">Github</a></li>
+        <li><a href="https://twitter.com/bo_wangbo">Twitter</a></li>
+       </ul>
+    </div>
+
+</aside>
+
+  <footer id="footer">
+    <p>Propulsé par <a href="http://docs.notmyidea.org/alexis/pelican/index.html">Pelican</a>.</p>
+  </footer>
+</div> <!-- /#page -->
 </body>
 </html>
