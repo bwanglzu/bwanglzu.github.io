@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+
+
+
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Bo&#39;s blog</title>
+        <link>https://bwanglzu.github.io/</link>
+        <description>Bo&#39;s personal blog.</description>
+        <generator>Hugo 0.111.3 https://gohugo.io/</generator>
+        
+            <language>en</language>
+        
+        
+            <managingEditor>bowang0911@gmail.com (bo)</managingEditor>
+        
+        
+            <webMaster>bowang0911@gmail.com (bo)</webMaster>
+        
+        
+            <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)</copyright>
+        
+        <lastBuildDate>Thu, 18 May 2023 22:32:47 &#43;0200</lastBuildDate>
+        
+            <atom:link rel="self" type="application/rss&#43;xml" href="https://bwanglzu.github.io/rss.xml" />
+        
+        
+            <item>
+                <title>Fine-tuned CLIP vs Zero-Shot CLIP for search, here are the results</title>
+                <link>https://bwanglzu.github.io/posts/clip-finetune/</link>
+                <guid isPermaLink="true">https://bwanglzu.github.io/posts/clip-finetune/</guid>
+                <pubDate>Mon, 03 Oct 2022 22:04:08 &#43;0200</pubDate>
+                
+                    <author>bowang0911@gmail.com (bo)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)</copyright>
+                
+                    <description>&lt;h2 id=&#34;background&#34;&gt;Background&lt;/h2&gt;
+&lt;p&gt;The &lt;a href=&#34;https://openai.com/blog/clip/&#34;&gt;OpenAI CLIP&lt;/a&gt; is a neural network trained on a wide variety of images with a wide variety of natural language supervision that’s abundantly available on the internet. It is capable to map text and image embeddings into the same semantic space and make them &lt;em&gt;comparable&lt;/em&gt;. i.e. we can measure the similarity between a piece of text and image once we use the CLIP model by encoding them into embeddings.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;It holds the potential for building a powerful cross-modaity search application&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;How? Let&amp;rsquo;s start from the beginning, and ask ourselves: &lt;em&gt;how do we search images with text&lt;/em&gt;?&lt;/p&gt;
+&lt;h2 id=&#34;text-image-retrieval-the-traditional-approach&#34;&gt;Text-Image Retrieval: the Traditional Approach&lt;/h2&gt;
+&lt;p&gt;Search images with text is non-trivial. Text queries normally consist of a list of tokens, while images to search are represented by matrices of values, such as RGB images are represented by three matrices of Red, Green and Blue.&lt;/p&gt;
+&lt;p&gt;A typical image is represented by three matrices of values.&lt;/p&gt;
+&lt;p&gt;How can we measure the &lt;em&gt;relatedness&lt;/em&gt; between text query and these matrices? There is no way except a lot of manual work.&lt;/p&gt;
+&lt;p&gt;For instance, social media websites such as &lt;a href=&#34;https://www.flickr.com/&#34;&gt;Flickr&lt;/a&gt; or &lt;a href=&#34;https://www.instagram.com/&#34;&gt;Instagram&lt;/a&gt; allow users to tag their images. Tags can be used for indexing and matching future user queries.
+If the tags are missing, some might use pre-trained machine learning models to recognise things within the image, such as dog, cat. Last but not least, if both user tags and classifier are not available, traditionally we have to use the surrounding text of the image to match against text queries, built on the assumption that surrounding text of an image, to some extent, reflected the semantic of the image itself.&lt;/p&gt;
+&lt;h2 id=&#34;the-openai-clip&#34;&gt;The OpenAI CLIP&lt;/h2&gt;
+&lt;p&gt;In Jan 2021, Open AI introduced the CLIP (&lt;em&gt;Contrastive Language–Image Pre-training&lt;/em&gt;), which efficiently learns how to recognise images of things from natural language supervision. As was introduced in the paper (&lt;a href=&#34;https://arxiv.org/pdf/2103.00020.pdf&#34;&gt;Learning Transferable Visual Models From Natural Language Supervision&lt;/a&gt;),&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;CLIP pre-trains an image encoder and a text encoder to predict which images were paired with which texts in our dataset. We then use this behaviour to turn CLIP into a zero-shot classifier. We convert all of a dataset’s classes into captions such as “a photo of a &lt;em&gt;dog&lt;/em&gt;” and predict the class of the caption CLIP estimates best pairs with a given image.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The author created a dataset consist of 400 million image-text pairs for the language-vision pre-training. For the image encoder, a ResNet or ViT was employed as the backbone model, while for text encoder the author used a text transformer. The author claims that:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Our studies of CLIP in a zero-shot setting show that the model displays significant promise for widely-applicable tasks like image retrieval or search.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;How CLIP can help Neural Search? The fundenmental difference between Neural Search and Symbolic Search, is, Neural Search find matches on &lt;em&gt;semantics&lt;/em&gt;, not &lt;em&gt;occurence&lt;/em&gt;. As introduced above, we can use the CLIP text encoder to encode a user query into an embedding, while use the CLIP image encoder to encode all images into embeddings. Then we can apply different similarity/distance metrics to evaluate how similar a query is to all encoded images, and produce a ranking list to return to the user.&lt;/p&gt;
+&lt;h2 id=&#34;clip-fine-tuning-with-finetuner&#34;&gt;CLIP Fine-tuning with Finetuner&lt;/h2&gt;
+&lt;p&gt;As introduced in the previous section, CLIP was pre-trained on a large collection of image-text pairs crawled from the internet, this ensures the model itself has a good “zero-shot” capability: it generalise well on a lot of domains.&lt;/p&gt;
+&lt;p&gt;If you want to apply CLIP on your domain-of-interest, such as Fashion search, Anime search..you might encounter performance issues due to the distribution shift of the training data.&lt;/p&gt;
+&lt;p&gt;CLIP fine-tuning itself is non-trivial, it involves jointly optimising two models in parallel: the CLIP text encoder and CLIP image encoder on the customized CLIP loss. Let alone a carefully selection of a set of effective hyper-parameters and setting up all the computing devices, such as GPUs.&lt;/p&gt;
+&lt;p&gt;That’s why we offer &lt;a href=&#34;https://github.com/jina-ai/finetuner&#34;&gt;Finetuner&lt;/a&gt; at Jina AI. Finetuner aims to optimise the quality of embeddings for search tasks. It:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Take care all the machine learning algorithms and deep learning techniques, such as contrastive learning, negative sampling, distributed training on top Pytorch Distributed Data Parallel (DDP) etc..&lt;/li&gt;
+&lt;li&gt;Owns all the complexity to set up computing resources, submit jobs, manage experiments and runs in the cloud.&lt;/li&gt;
+&lt;li&gt;Deliver an extremely simplified user interface. How easy it is? Take a look at the code block below:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;finetuner&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;finetuner&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;login&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# step 1: fine-tune&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;run&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;finetuner&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;fit&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;model&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;openai/clip-vit-base-patch32&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;train_data&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;fashion-eval-train-clip&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;epochs&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;5&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;learning_rate&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;1e-7&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;loss&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;CLIPLoss&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;device&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;cuda&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;entry&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;run&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;stream_logs&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;():&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nb&#34;&gt;print&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;entry&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# step 2: inference&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;query&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;DocumentArray&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;([&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;Document&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;text&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;white sneaker&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)])&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;articles&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;DocumentArray&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;([&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;Document&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;uri&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;sneaker1.png&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;Document&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;uri&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;sneaker2.png&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;Document&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;uri&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;sneaker3.png&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# download fine-tuned model&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;artifact&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;run&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;save_artifact&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;clip-model&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;clip_text_encoder&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;finetuner&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;get_model&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;artifact&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;artifact&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;select_model&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;clip-text&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;clip_image_encoder&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;finetuner&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;get_model&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;artifact&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;artifact&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;select_model&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;clip-vision&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# encode query and articles&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;finetuner&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;encode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;model&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;clip_text_encoder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;query&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;finetuner&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;encode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;model&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;clip_image_encoder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;data&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;articles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# find best match&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;query&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;articles&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;limit&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;metric&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;cosine&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;does-it-work-compare-with-the-benchmark&#34;&gt;Does it work? Compare with the Benchmark&lt;/h2&gt;
+&lt;p&gt;Recently, credits to the &lt;a href=&#34;https://laion.ai/&#34;&gt;Laion AI&lt;/a&gt; team, their engineers published an open source Github repo &lt;a href=&#34;https://github.com/LAION-AI/CLIP_benchmark&#34;&gt;CLIP Benchmark&lt;/a&gt; which evaluated varies CLIP models on three datasets and two tasks: image classification and image retrieval.&lt;/p&gt;
+&lt;p&gt;The Jina AI team adopted the codebase from CLIP Benchmark and apply Finetuner fine-tuned three variations of CLIP models:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;ViT-B-32#openai&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ViT-B-32-quickgelu#laion400m&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ViT-B-16-plus#laion400m&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;on three datasets (same as CLIP Benchmark)&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Flickr8k&lt;/li&gt;
+&lt;li&gt;Flickr30k&lt;/li&gt;
+&lt;li&gt;MS-COCO captions&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Nine experiments in total, and here are the results (compared with zero-shot CLIP):&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;model&lt;/th&gt;
+&lt;th&gt;dataset&lt;/th&gt;
+&lt;th&gt;imageRecall@5(zero-shot)&lt;/th&gt;
+&lt;th&gt;textRecall@5(zero-shot)&lt;/th&gt;
+&lt;th&gt;imageRecall@5(fine-tuned)&lt;/th&gt;
+&lt;th&gt;textRecall@5(fine-tuned)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-32#openai&lt;/td&gt;
+&lt;td&gt;flickr8k&lt;/td&gt;
+&lt;td&gt;0.532&lt;/td&gt;
+&lt;td&gt;0.699&lt;/td&gt;
+&lt;td&gt;0.865&lt;/td&gt;
+&lt;td&gt;0.908&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-16-plus-240&lt;/td&gt;
+&lt;td&gt;flickr8k&lt;/td&gt;
+&lt;td&gt;0.644&lt;/td&gt;
+&lt;td&gt;0.792&lt;/td&gt;
+&lt;td&gt;0.878&lt;/td&gt;
+&lt;td&gt;0.920&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-32-quickgelu#laion400m_e32&lt;/td&gt;
+&lt;td&gt;flickr8k&lt;/td&gt;
+&lt;td&gt;0.579&lt;/td&gt;
+&lt;td&gt;0.739&lt;/td&gt;
+&lt;td&gt;0.849&lt;/td&gt;
+&lt;td&gt;0.902&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-32#openai&lt;/td&gt;
+&lt;td&gt;flickr30k&lt;/td&gt;
+&lt;td&gt;0.834&lt;/td&gt;
+&lt;td&gt;0.949&lt;/td&gt;
+&lt;td&gt;0.902&lt;/td&gt;
+&lt;td&gt;0.948&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-16-plus-240&lt;/td&gt;
+&lt;td&gt;flickr30k&lt;/td&gt;
+&lt;td&gt;0.889&lt;/td&gt;
+&lt;td&gt;0.971&lt;/td&gt;
+&lt;td&gt;0.917&lt;/td&gt;
+&lt;td&gt;0.971&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-32-quickgelu#laion400m_e32&lt;/td&gt;
+&lt;td&gt;flickr30k&lt;/td&gt;
+&lt;td&gt;0.855&lt;/td&gt;
+&lt;td&gt;0.941&lt;/td&gt;
+&lt;td&gt;0.872&lt;/td&gt;
+&lt;td&gt;0.929&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-32#openai&lt;/td&gt;
+&lt;td&gt;coco captions&lt;/td&gt;
+&lt;td&gt;0.559&lt;/td&gt;
+&lt;td&gt;0.748&lt;/td&gt;
+&lt;td&gt;0.655&lt;/td&gt;
+&lt;td&gt;0.745&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-16-plus-240&lt;/td&gt;
+&lt;td&gt;coco captions&lt;/td&gt;
+&lt;td&gt;0.662&lt;/td&gt;
+&lt;td&gt;0.810&lt;/td&gt;
+&lt;td&gt;0.712&lt;/td&gt;
+&lt;td&gt;0.814&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;ViT-B-32-quickgelu#laion400m_e32&lt;/td&gt;
+&lt;td&gt;coco captions&lt;/td&gt;
+&lt;td&gt;0.608&lt;/td&gt;
+&lt;td&gt;0.768&lt;/td&gt;
+&lt;td&gt;0.671&lt;/td&gt;
+&lt;td&gt;0.764&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Default hyper-parameters are: &lt;code&gt;learning_rate: 1e-6&lt;/code&gt;, &lt;code&gt;epochs: 5&lt;/code&gt;, &lt;code&gt;optimizer: Adam&lt;/code&gt;.
+Flickr models are evaluated on the Karpathy test set.
+MS-COCO caption models are fine-tuned on a random subset (100k pairs) extracted from 2014 train images and evaluated on 2014 validation images.&lt;/p&gt;
+&lt;h2 id=&#34;general-insights-when-fine-tuning-clip&#34;&gt;General insights when Fine-tuning CLIP&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Use a small learning rate, such as 1e-6, 1e-7.&lt;/li&gt;
+&lt;li&gt;You do not need huge or complex models, the ViT-B-32 is good enough with fine-tuning.&lt;/li&gt;
+&lt;li&gt;If your search case is close domain/different domain, fine-tuning might be a good idea, otherwise not.&lt;/li&gt;
+&lt;li&gt;Use a Prompt template to turn your keyword into a sentence. For example, use &lt;code&gt;This is a photo of cat&lt;/code&gt; instead of &lt;code&gt;cat&lt;/code&gt; as your text descriptor.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;credits&#34;&gt;Credits&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Thanks the great work produced by &lt;em&gt;&lt;a href=&#34;https://github.com/LAION-AI/CLIP_benchmark&#34;&gt;CLIP-Benchmark&lt;/a&gt;.&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;Thanks &lt;a href=&#34;https://github.com/mlfoundations/open_clip&#34;&gt;Open-CLIP&lt;/a&gt; for providing &lt;del&gt;all&lt;/del&gt; pre-trained CLIP models with different weights.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If you want to reproduce our results or try Finetuner on your own data, we have created a G&lt;a href=&#34;https://colab.research.google.com/drive/1fHSUML3UmrRltzn7xjgl5Db6QOqXjNHa?usp=sharing&#34;&gt;oogle Colab&lt;/a&gt; together with this blog post. It is worth mentioning that, apart from CLIP, Finetuner is capable of tuning other models like ResNet, EfficientNet and even language models such as BERT.&lt;/p&gt;
+&lt;p&gt;Please visit our Github page and documentation page for more information:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/jina-ai/finetuner&#34;&gt;https://github.com/jina-ai/finetuner&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://finetuner.jina.ai/&#34;&gt;https://finetuner.jina.ai/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+                
+                
+                
+                
+                
+                    
+                        
+                    
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>Our Journey Towards Build Model Finetuning as Service</title>
+                <link>https://bwanglzu.github.io/posts/finetune-as-service/</link>
+                <guid isPermaLink="true">https://bwanglzu.github.io/posts/finetune-as-service/</guid>
+                <pubDate>Sat, 28 May 2022 21:57:28 &#43;0200</pubDate>
+                
+                    <author>bowang0911@gmail.com (bo)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)</copyright>
+                
+                    <description>&lt;h2 id=&#34;background&#34;&gt;Background&lt;/h2&gt;
+&lt;p&gt;Deep learning for Information Retrieval is non-trivial.
+Most of the people who have a background in Information Retrieval in industry lack of proper deep learning knowledge.
+On the other hand, people research deep learning care a lot about classification, segmentation rather than search.&lt;/p&gt;
+&lt;p&gt;On the other hand, in the real-world,
+there is a urgent need for deep learning powered search.
+This is especially the case for Content-based Image Retrieval (CBIR, i.e. find similar images)
+or Multi/Cross-modal Information Retrieval, even Cross-lingual Information Retrieval.&lt;/p&gt;
+&lt;p&gt;In practice, traditional search algorithms such as Okapi-Bm25 already did a good job in text-to-text search,
+incorporating dense vectors for search result re-ranking (2nd-stage ranking) has been proved to bring much better search quality.
+This blog explains how &lt;a href=&#34;https://blog.google/products/search/search-language-understanding-bert/&#34;&gt;Google brings Bert model into Google search&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;For CBIR, the &amp;ldquo;old&amp;rdquo; ways is to enable bag of visual words and in the recent years,
+we use deep neural networks to extract visual representation and find similar images using similarity/distance metrics.&lt;/p&gt;
+&lt;p&gt;Most of the web shops consider each item as a &lt;em&gt;Product&lt;/em&gt; rather than a single image or a piece of text descriptor.
+In this case, combining image features and text features to leverage multi-modality representation becomes an essential topic.&lt;/p&gt;
+&lt;p&gt;Besides these common use cases, cross-lingual retrieval over different marketplace,
+short-video retrieval, music retrieval forms several niche market.&lt;/p&gt;
+&lt;p&gt;Each of these search applications, is powered by a research community.
+This research community train big models on a general task.
+But bring this model to your production environment could be painful:
+You&amp;rsquo;ll soon realize leveraging pre-trained model produce trash search results.&lt;/p&gt;
+&lt;p&gt;Why? In research people name it &lt;em&gt;distribution shift&lt;/em&gt;.
+The model trained on the dataset, let&amp;rsquo;s say &lt;a href=&#34;https://www.image-net.org/&#34;&gt;ImageNet&lt;/a&gt;,
+contains millions of images of real-world objects,
+rather than the data within your niche market.
+So we need to fine-tune this model a bit to adopt the data distribution of your dataset.&lt;/p&gt;
+&lt;p&gt;You might ask,
+okay, i know there are a bunch of frameworks/services already exist, and they can help me fine-tune a model,
+why you build Finetuner and turn it into a service?&lt;/p&gt;
+&lt;h2 id=&#34;whats-the-difference-between-finetuner-and-other-libraries&#34;&gt;What&amp;rsquo;s the difference between Finetuner and other Libraries?&lt;/h2&gt;
+&lt;p&gt;Once there was a Jina AI community member ask a question:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;What&amp;rsquo;s the difference between Fientuner and Huggingface Transformers Trainer and other frameworks?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;I believe the major difference is we a producing an &lt;em&gt;embedding model&lt;/em&gt;.
+This is because for search tasks,
+the most important thing is the quality of &lt;em&gt;embedding/vector/representation&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;For most of the frameworks, such as Huggingface transformers,
+fine-tuning means applies transfer learning with a new &lt;em&gt;head&lt;/em&gt;.
+This head is, your task of interest.
+More specifically, if you take a pre-trained VisionTransformer on ImageNet,
+and want to fine-tune it for, let&amp;rsquo;s say, cat-dog classification.
+You head will becomes a 2-class classification head, rather than 1000 class ImageNet head.&lt;/p&gt;
+&lt;p&gt;Finetuner, however, &lt;em&gt;respect your choice of model&lt;/em&gt;.
+It could be a vision model from &lt;a href=&#34;https://github.com/rwightman/pytorch-image-models&#34;&gt;timm&lt;/a&gt;,
+&lt;a href=&#34;https://github.com/pytorch/vision&#34;&gt;torchvision&lt;/a&gt;, or &lt;a href=&#34;https://github.com/huggingface/transformers&#34;&gt;transformers&lt;/a&gt;.
+When receiving your model of choice, Finetuner will try to interpret your model architecture and &amp;ldquo;cut&amp;rdquo; your model &lt;em&gt;head&lt;/em&gt;
+or applying pooling,
+then convert your model into an &lt;em&gt;embedding model&lt;/em&gt;.
+This model, receiving an input, produce a feature vector to represent your data.
+Finetuner try to learn the &lt;em&gt;data distribution&lt;/em&gt; of your data and improve the quality of the learned &lt;em&gt;embedding/vector/representation&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;If you want to know more about how Fituner works in general,
+please refer to my previous &lt;a href=&#34;metric-vs-ssl.md&#34;&gt;blog&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;why-finetuner-becomes-a-service-and-how-did-we-make-the-change&#34;&gt;Why Finetuner becomes a service and How did we make the change?&lt;/h2&gt;
+&lt;p&gt;Several important reasons,
+the most important one is,
+Finetuner-Service will become a stakeholder to power several Jina applications internally,
+such as DocsQA, Now, Clip-As-Service and some unannounced project.&lt;/p&gt;
+&lt;p&gt;These applications do not have to care about the usage,
+Finetuner will hide the complexity of machine learning,
+and these applications deliver better search results to the user.&lt;/p&gt;
+&lt;p&gt;However, we would also release the service externally to help Jina users improve their search quality.
+Our design objective is:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;We care about model performance, but we&amp;rsquo;re not chasing SOTA. We try to find a balance point between performance and stability.&lt;/li&gt;
+&lt;li&gt;User stay inside Jina ecosystem, &lt;code&gt;docarray&lt;/code&gt; is the entrypoint for preparing training data.&lt;/li&gt;
+&lt;li&gt;Minimum configuration required, while allow user to control their experiments.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Previously, the Finetuner team within Jina is maintaining a single repo Finetuner.
+This OSS version will be abandoned,
+given a small team, in the past 3.5 months, this is what we have now:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;A much improved (close sourced) Finetuner-Core, with transformer support, CLIP support, much faster training on a single GPU or across multi-gpus, bug fixes and refactoring.&lt;/li&gt;
+&lt;li&gt;A brand-new (close sourced) Finetuner-API, handles all cloud jobs, resource management, Finetune-job submission and deep integration with Jina&amp;rsquo;s user system.&lt;/li&gt;
+&lt;li&gt;A brand-new (open sourced) Finetuner-Client, allow user to create configurations and talk with Finetuner-API.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;In short, the heavy job has been delegrated to Finetuner-API and Finetuner-Core,
+and user only need to talk with Finetuner-Client.&lt;/p&gt;
+&lt;h2 id=&#34;how-easy-it-is&#34;&gt;How easy it is?&lt;/h2&gt;
+&lt;p&gt;Please check the screenshot below:&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Note, it&amp;rsquo;s not yet published to Pypi.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bwanglzu.github.io/finetuner.jpeg&#34; alt=&#34;client&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Not bad, right?
+Actually, user only need to provide a &lt;code&gt;model&lt;/code&gt; name and &lt;code&gt;train_data&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Once you logged in,
+Finetuner will push your data to your own artifact storage (only visible to you),
+reserve cloud resources such as CPU/GPU/Memory, start the job and push fine-tuned model, again,
+to your artifact storage.
+Once training is over, you can call &lt;code&gt;save_model&lt;/code&gt; to pull your model back to your machine.
+That&amp;rsquo;s it!&lt;/p&gt;
+&lt;h2 id=&#34;how-much-performance-gain-you-can-expect&#34;&gt;How much performance Gain You Can Expect?&lt;/h2&gt;
+&lt;p&gt;It depends on a lot of factors.
+Internally we have conducted a lot of experiments on varies tasks,
+such as image-to-image search, text-to-text search, cross-modal search.
+Across these three tasks, Finetuner is able to boost 20%-45% of precision@k and recall@k.
+You can also observe significant performance improvement on other metrics,
+such as mean recipal rank (mRR) or normalized discounted cumulative gain (nDCG).&lt;/p&gt;
+&lt;p&gt;That&amp;rsquo;s it for today, thanks for your time, we&amp;rsquo;ll soon release the latest finetuner, stay tuned.&lt;/p&gt;
+</description>
+                
+                
+                
+                
+                
+                    
+                        
+                    
+                        
+                    
+                
+            </item>
+        
+            <item>
+                <title>Metric-Learning vs Self-Supervised Learning, which produce better embeddings for Instance Retrieval?</title>
+                <link>https://bwanglzu.github.io/posts/metrics-vs-ssl/</link>
+                <guid isPermaLink="true">https://bwanglzu.github.io/posts/metrics-vs-ssl/</guid>
+                <pubDate>Sun, 20 Mar 2022 21:34:33 &#43;0200</pubDate>
+                
+                    <author>bowang0911@gmail.com (bo)</author>
+                
+                <copyright>[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en)</copyright>
+                
+                    <description>&lt;p&gt;Instance-level image retrieval is an important component of image retrieval tasks.
+Given an image as &lt;em&gt;Query&lt;/em&gt;,
+an instance retrieval system aims at find the same objects &lt;em&gt;D&lt;/em&gt; with respect to &lt;em&gt;Q&lt;/em&gt;.
+For instance, given an image of the Great Wall, instance retrieval should be able to find other Great Wall images,
+under different circumstances.
+Or return facial images of the same person while querying with another facial image of a celebrity.&lt;/p&gt;
+&lt;p&gt;For a long period of time, (Supervised)Metric-Learning has always been the answer:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Prepare a training set, with class labels.&lt;/li&gt;
+&lt;li&gt;Construct triplets (or tuples, or more..), each triplet contains an anchor image, a positive and a negative.&lt;/li&gt;
+&lt;li&gt;Apply triplet margin loss by maximizing the distance metric between anchor and negative pair, while pull anchor and positive closer.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&#34;https://bwanglzu.github.io/triplet_loss.png&#34; alt=&#34;triplet&#34;&gt;
+&lt;em&gt;source: &lt;a href=&#34;https://arxiv.org/abs/1503.03832&#34;&gt;FaceNet: A Unified Embedding for Face Recognition and Clustering&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Apparently, supervised deep metric learning is more than that.
+In the past months, while developing &lt;a href=&#34;https://github.com/jina-ai/finetuner&#34;&gt;Finetuner&lt;/a&gt; at Jina AI,
+we went through a lot of traps.&lt;/p&gt;
+&lt;p&gt;For instance, Should we allow user to manually create &amp;ldquo;hard-negatives&amp;rdquo;?
+The answer is a clear No.
+But in the first iteration,
+the input of our data is &lt;em&gt;Document&lt;/em&gt; with 2 &lt;em&gt;Matches&lt;/em&gt; like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;from&lt;/span&gt; &lt;span class=&#34;nn&#34;&gt;docarray&lt;/span&gt; &lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Document&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;anchor&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Document&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;uri&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;this-is-the-anchor-image.jpg&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;pos&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Document&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;uri&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;this-is-an-positive-image&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;tags&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;label&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# positive share the same label as anchor&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;neg&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Document&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;uri&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;this-is-a-negative-image&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;tags&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;label&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# negative has an different label &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;anchor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;matches&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;extend&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;([&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;pos&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;neg&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;])&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;This &amp;ldquo;gives&amp;rdquo; user the power to perform manual positive/negative selection.
+However, does it make any sense?
+Probably not for several reasons:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;It takes efforts for users to perform negative mining, in another word,  it take times.&lt;/li&gt;
+&lt;li&gt;Since it might takes time, user might just randomly sampling negatives from other classes.&lt;/li&gt;
+&lt;li&gt;Negative samples might not being effectively used. Suppose user select 1 positive 4 negatives, we end up with 4 triplets, not much, quantity wise.&lt;/li&gt;
+&lt;li&gt;Negative samples might not being selected has hard-negatives, given in most cases, hard-negatives brings more benefits while model training.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;What is the better approach?
+Do it automatically!&lt;/p&gt;
+&lt;p&gt;Suppose you have a deep metric learning training task,
+your batch size is 128,
+this is what we offer you:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;For each batch of 128 samples, we sample N items from the same class, e.g. 4. In the end, you got 32 classes within batch.&lt;/li&gt;
+&lt;li&gt;Consider each item as an anchor image, then you get 3 positives (4 - 1).&lt;/li&gt;
+&lt;li&gt;Consider each item as an anchor image, then you get 124 negatives (128 - 3 - 1).&lt;/li&gt;
+&lt;li&gt;In the end, within this batch, how many triplets you get? Much larger than 4 if we perform manual negative selection (1 anchor-1 pos-4 neg)!&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Now you have a set of triplets, you can either:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Training your model with all automatically selected triplets (with no mining).&lt;/li&gt;
+&lt;li&gt;Training your model with different mining strategies (easy/semi-hard/hard negative mining).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;This makes training a metric learning model much more effectively.
+While you might still discover some minor issues:&lt;/p&gt;
+&lt;p&gt;If we want to apply hard-negative mining,
+and if I can only perform hard-negative mining within the batch,
+this means I can only select the &amp;ldquo;best&amp;rdquo; hard-negative within a batch,
+not over the entire dataset.&lt;/p&gt;
+&lt;p&gt;This is true, and 2 possible solutions: either you increase your batch size to generate a bigger &amp;ldquo;pool size&amp;rdquo; and reduce the issue,
+or you perform cross-batch hard-negative mining.
+Previous solution is easier,
+while could be limited by your hard-ware capacity.
+After all, GPU-memory is too limited compare with RAM.
+The later strategy, could resolve the issue.
+While it is tricky to bring the code into a reusable component of a software.&lt;/p&gt;
+&lt;p&gt;We&amp;rsquo;ve approved that deep metric learning + triplet margin loss + sampling + hard-negative mining is extremely useful,
+and, it is especially the case,
+for instance-level image retrieval.&lt;/p&gt;
+&lt;p&gt;Since 2018, Google launched &lt;a href=&#34;https://www.kaggle.com/c/landmark-retrieval-2021&#34;&gt;Google Landmark Retrieval 2021&lt;/a&gt;.
+This is a perfect playground for instance-level image retrieval.&lt;/p&gt;
+&lt;p&gt;If you look at the top solutions, almost all of them use deep metric learning and some add-on tricks.
+Includes different loss functions, pooling layers etc.
+Nothing other than deep metric learning.
+The latest winner,
+according to leaderboard,
+reached a mAP@100 of &lt;strong&gt;0.53751&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;If you employ a pre-trained ResNet/EfficientNet trained on ImageNet dataset,
+remove the last classification layer and turn it into a &lt;strong&gt;Embedding model&lt;/strong&gt; (feature extractor),
+you can get roughly &lt;strong&gt;0.25 - 0.30&lt;/strong&gt; mAP@100.
+Quite significant improvement, right?&lt;/p&gt;
+&lt;p&gt;To now, we&amp;rsquo;ve discussed the basic idea of deep metric learning and how good it performs on Instance Retrieval task.
+You might ask, what about self-supervised learning (SSL), are you still going to mention that?
+I say yes, this is the turning point.&lt;/p&gt;
+&lt;p&gt;SSL has been a part of representation learning for some time.
+But we discovered significant progress has been made in the year of 2021.
+Such as SimCLR, SImCLRv2, MoCo, MocoV2, BYOL etc.
+These approaches aimes at learn a good representation (embedding model) with NO labels.
+&lt;strong&gt;AND THIS IS HUGE IN REAL-WORLD CASES&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;As a machine learning engineer,
+How many times have you tried to convince your BOSS the importance of the labeling?
+How many times have you tried to label by yourself?
+Have you tried convince your manager to spend some money on crowdsourcing platforms to get labels for you?
+Are you tired of, build a user-in-the-loop pipeline to deploy a not-perfect model first, and expect to collect more labels as time pass by?&lt;/p&gt;
+&lt;p&gt;If non of above make any sense to you, good for you.
+But, what inspiring me most, is finally,
+we have a SSL paper evaluated on Instance Retrieval Task!
+This is published by facebook: &lt;a href=&#34;https://arxiv.org/pdf/2104.14294.pdf&#34;&gt;Emerging Properties in Self-Supervised Vision Transformers&lt;/a&gt;.
+We&amp;rsquo;ll call it &lt;strong&gt;DINO&lt;/strong&gt; in the following section.
+Let&amp;rsquo;s first see some evaluation result:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bwanglzu.github.io/eval_dino&#34; alt=&#34;dino&#34;&gt;&lt;/p&gt;
+&lt;p&gt;If you look at the results without reading the paper,
+it might confuse you.
+Basically, they trained the model on Google Landmark Dataset we mentioned above.
+While evaluated results on Oxford and Paris dataset (another 2 smaller version of landmark datasets).
+And they claim the results are even better than some supervised approaches.&lt;/p&gt;
+&lt;p&gt;How did they achieve it without using any labels?&lt;/p&gt;
+&lt;p&gt;Trick1: Multi-stage cropping. The basic idea of self-supervised learning is,
+given an image, it apply augmentation on this image two times,
+and generate 2 different &lt;em&gt;Views&lt;/em&gt; of the same image.
+Even through these two different &lt;em&gt;Views&lt;/em&gt; of the same image looks different,
+but we know they&amp;rsquo;re from the same classes: we augmented the image.
+Multi-stage cropping is another step: we crop the input image, let&amp;rsquo;s say 6 times.
+2 times we use &lt;strong&gt;Global Cropping&lt;/strong&gt; and we perform &lt;strong&gt;Local Cropping&lt;/strong&gt; 4 times.
+Global cropping basically crops over 50% percent of the original image,
+while local cropping crops around 20-30% of the original image.
+After cropping, we transform the &lt;strong&gt;GlobalCropping&lt;/strong&gt; back to 224 by 224,
+&lt;strong&gt;LocalCropping&lt;/strong&gt; to 96 by 96.&lt;/p&gt;
+&lt;p&gt;Trick2: Patches and Vision Transformer. Once augmentation finished,
+we split the images into patches (a small portion of the augmented image).
+Feed patches as inputs to a Vision Transformer model.
+The final &lt;strong&gt;[CLS]&lt;/strong&gt; token of 768d becomes the learned representation.&lt;/p&gt;
+&lt;p&gt;Trick3: Self-distillation and momentum update. Distillation normally involves 2 models,
+one smaller-sized student model and one larger sized teacher model.
+For DINO, the author used two identical models (ViT) for both student and teacher.
+While apply stop-gradient for teacher model (no back backpropagation),
+while update teacher model in an exponential moving average manner.
+EMA places a greater weight and significance on the most recent data points.
+At early stage, student network post a bit more significant impact on teacher networks&amp;rsquo; parameters.
+As training goes on, the student network has less-and-less impact on teacher network, until training finish.&lt;/p&gt;
+&lt;p&gt;Trick4: Centering and Sharpening. According to previous SSL research,
+when training model with no negative samples (only tuples) can result in model collapse.
+The model can not distinguish which is good,
+which is bad since we only have positive samples.
+The author introduced Centering parameter &lt;strong&gt;C&lt;/strong&gt; to keep the running average of the rated teacher network ouputs.
+And applied always deduct this running average when computing normalized cross-entropy loss.&lt;/p&gt;
+&lt;p&gt;How does is final representation looks like?&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://bwanglzu.github.io/attention_maps.png&#34; alt=&#34;dino-representation&#34;&gt;&lt;/p&gt;
+&lt;p&gt;Training models without labels,
+for representation learning,
+evaluated on search task,
+and get very impressive results.
+These are the reasons I consider SSL could becomes a game changer.&lt;/p&gt;
+&lt;p&gt;How? It might change the way we deploy ML solutions for varies downstream tasks,
+such as search task.
+Currently, when user has limited amount of training data,
+the best situation seems to be:
+Use pre-trained model, freeze most of the layers, apply transfer learning + metric learning for model finetunning.&lt;/p&gt;
+&lt;p&gt;Suppose user provided large amount of messy training data without any labels,
+what can you do?
+The only possible way seems to be: combine &lt;strong&gt;Active Learning&lt;/strong&gt; and &lt;strong&gt;Transfer Learning&lt;/strong&gt;.
+User label the data interactively to provide labeled training samples.
+This could be useful, but lack of theoretical evaluations and practical support.&lt;/p&gt;
+&lt;p&gt;One would argue, in most of my use cases,
+I always have labeled data.
+This could be a valid point in today&amp;rsquo;s search industries.
+But to now, when applying deep learning on image retrieval,
+the market is super biased towards to fashion industry,
+and this industry, has a lot of labeled data already.&lt;/p&gt;
+&lt;p&gt;While I believe, with time pass by,
+we&amp;rsquo;ll soon see the shift of vector search from fashion, to more fields.
+Such as retail, tourism, real-estate, 3d meshes etc.
+Is our data/model ready for these industries already?
+The answer is clearly a no.&lt;/p&gt;
+&lt;p&gt;Think from another point, what if, the self-supervised learning approaches,
+without any supervision, could bring on-par performance compared with supervised approaches?
+It&amp;rsquo;s gonna an interesting case,
+then the only point for using metric-learning is because it&amp;rsquo;s faster and consume less time/power.&lt;/p&gt;
+&lt;p&gt;Stop from here.
+In the next blog, I&amp;rsquo;ll write another one brings more code and quantitative evaluation.
+We&amp;rsquo;ll get some better understanding of SSL vs Metric Learning by conducting some inspection on their failure cases.&lt;/p&gt;
+</description>
+                
+                
+                
+                
+                
+                    
+                        
+                    
+                        
+                    
+                
+            </item>
+        
+    </channel>
+</rss>
