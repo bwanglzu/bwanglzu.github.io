@@ -31,6 +31,9 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./blog
     env:
       HUGO_VERSION: 0.111.3
     steps:
