@@ -48,4 +48,4 @@ Previously, I worked as an Engineering Manager at @JinaAI_, where I worked with 
 
 ## Background
 
-Before joining @JinaAI_, I worked as a Machine Learning Engineer and Research Intern, and I received my MSc from TU Delft, Delft, the Netherlands, and my BSc from Lanzhou University, Lanzhou, China.
+Before joining @JinaAI_, I worked as a Machine Learning Engineer and Research Intern, and I received my MSc from @tudelft, Delft, the Netherlands, and my BSc from @iLZU1909, Lanzhou, China.
