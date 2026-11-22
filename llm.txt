@@ -1,0 +1,51 @@
+# Bo Wang
+
+Text version of Bo Wang's personal website.
+Website: https://bwanglzu.github.io/
+Last updated: November 22, 2026
+
+## Profiles and contact
+
+- Bo Wang on Semantic Scholar: https://www.semanticscholar.org/author/Bo-Wang/2224475788
+- Bo Wang on GitHub: https://github.com/bwanglzu
+- Bo Wang on LinkedIn: https://linkedin.com/in/wang-bo-20632a65
+- Bo Wang on X: https://x.com/bo_wangbo
+- Email Bo Wang: mailto:bowang0911@gmail.com
+
+## Current work at Perplexity
+
+I'm a Member of Technical Staff at @perplexity_ai, working at the intersection of search and AI. I built a small research team at Perplexity Berlin (https://www.perplexity.ai/hub/careers/berlin). Hiring is currently paused, with rare exceptions for high-profile candidates. My current work includes:
+
+- citras: A high-performance representation learning framework for training dense, late-interaction, and multimodal representation models.
+- pplx-embed-v1: Diffusion-Pretrained Dense and Contextual Embeddings. [arXiv](https://arxiv.org/abs/2602.11151) [blog](https://www.perplexity.ai/en-GB/hub/blog/pplx-embed-state-of-the-art-embedding-models-for-web-scale-retrieval)
+- context pruner: Query-Aware Context Compression for Better Snippets. [blog](https://www.perplexity.ai/en-GB/hub/blog/query-aware-context-compression-for-better-snippets)
+- q2d-web: A Large-Scale Benchmark for Retrieval in Agentic RAG Systems. [arXiv](https://arxiv.org/abs/2609.08887) [blog](https://www.perplexity.ai/en-GB/hub/blog/q2d-web)
+- pplx-embed-v2-late: Multimodal embeddings beyond a single vector. [arXiv](https://arxiv.org/abs/2610.29523) [blog](https://www.perplexity.ai/en-GB/hub/blog/multimodal-embeddings-beyond-a-single-vector)
+- pplx-embed-v2-context: Contextual Embeddings Beyond the Gold Chunk. [arXiv](https://arxiv.org/abs/2610.38854) [blog](https://www.perplexity.ai/en-GB/hub/blog/contextual-embedding-beyond-the-gold-passage)
+- decider: Perplexity Decider v1.3: Training, eval, and use cases. [blog](https://www.perplexity.ai/en-GB/hub/blog/perplexity-decider)
+- search quality: Supporting the team's efforts to improve search quality across the stack.
+- continued pre-training and multimodal pre-training: Mining high-quality training corpora for Perplexity.
+
+## Previous work at Jina AI
+
+Previously, I worked as an Engineering Manager at @JinaAI_, where I worked with my colleagues to build the best neural retrievers in the world. Our work included:
+
+- jina-embeddings-v1: A Novel Set of High-Performance Sentence Embedding Models. [arXiv](https://arxiv.org/abs/2307.11224)
+- jina-embeddings-v2: 8192-Token General-Purpose Text Embeddings for Long Documents. [arXiv](https://arxiv.org/abs/2310.19923) [blog](https://jina.ai/news/jina-ai-launches-worlds-first-open-source-8k-text-embedding-rivaling-openai/)
+- jina-embeddings-v2-bilingual: Multi-Task Contrastive Learning for 8192-Token Bilingual Text Embeddings. [arXiv](https://arxiv.org/abs/2402.17016) [blog](https://jina.ai/news/jina-embeddings-v2-bilingual-models-are-now-open-source-on-hugging-face/)
+- jina-clip-v1: Your CLIP Model Is Also Your Text Retriever. [arXiv](https://arxiv.org/abs/2405.20204) [blog](https://jina.ai/news/jina-clip-v1-a-truly-multimodal-embeddings-model-for-text-and-image/)
+- jina-colbert-v2: A General-Purpose Multilingual Late Interaction Retriever. [arXiv](https://www.arxiv.org/abs/2408.16672) [blog](https://jina.ai/news/jina-colbert-v2-multilingual-late-interaction-retriever-for-embedding-and-reranking/)
+- jina-embeddings-v3: Multilingual Embeddings With Task LoRA. [arXiv](https://arxiv.org/abs/2409.10173) [blog](https://jina.ai/en-US/news/jina-embeddings-v3-a-frontier-multilingual-embedding-model/)
+- jina-clip-v2: Multilingual Multimodal Embeddings for Text and Images. [arXiv](https://arxiv.org/abs/2412.08802) [blog](https://jina.ai/news/jina-clip-v2-multilingual-multimodal-embeddings-for-text-and-images/)
+- jina-embeddings-v4: Universal Embeddings for Multimodal Multilingual Retrieval. [arXiv](https://arxiv.org/abs/2506.18902) [blog](https://jina.ai/en-US/news/jina-embeddings-v4-universal-embeddings-for-multimodal-multilingual-retrieval/)
+- modality gap: The What and Why of Text-Image Modality Gap in CLIP Models. [blog](https://jina.ai/news/the-what-and-why-of-text-image-modality-gap-in-clip-models/)
+- language gap: Bridging Language Gaps in Multilingual Embeddings via Contrastive Learning. [blog](https://jina.ai/news/bridging-language-gaps-in-multilingual-embeddings-via-contrastive-learning/)
+
+## Collaborations
+
+- listwise reranking: Leveraging Passage Embeddings for Efficient Listwise Reranking with Large Language Models. [arXiv](https://arxiv.org/abs/2406.14848)
+- air-bench: Automated Heterogeneous Information Retrieval Benchmark. [arXiv](https://arxiv.org/abs/2412.13102)
+
+## Background
+
+Before joining @JinaAI_, I worked as a Machine Learning Engineer and Research Intern, and I received my MSc from TU Delft, Delft, the Netherlands, and my BSc from Lanzhou University, Lanzhou, China.
